@@ -1,0 +1,6 @@
+/.vscode
+
+/libcostume/build/
+/libcostume/libcostume.so
+
+/tests/main
