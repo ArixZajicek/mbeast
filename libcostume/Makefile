@@ -35,9 +35,15 @@ $(DEPS): $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.c))
 
 -include $(DEPS)
 
+# Test 
+test: $(TARGET)
+	@gcc tests/main.c -o test -I. -L. -lcostume -lm
+	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./test
+
 .PHONY: clean
 clean:
 	@echo Removing $(OBJDIR), $(DEPDIR), and $(TARGET)...
 	@rm -fr $(OBJDIR)
 	@rm -fr $(DEPDIR)
 	@rm -f $(TARGET)
+	@rm -f ./test
