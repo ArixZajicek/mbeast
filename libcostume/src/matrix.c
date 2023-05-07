@@ -4,8 +4,7 @@
 
 #include "matrix.h"
 
-// SDL2 only needed for debug mode, not needed fo final build
-// with final build
+// SDL2 only needed for debug mode, not needed for final build
 #include <SDL2/SDL.h>
 
 #define LOG(...) printf(__VA_ARGS__); printf("\n")
@@ -81,6 +80,7 @@ void *run(void *p) {
     SDL_Quit();
 }
 
+__declspec(dllexport)
 int matrix_init(uint width, uint height, byte debug_mode) {
     // Prevent multiple instances
     if (thread != NULL) {
@@ -142,6 +142,7 @@ int matrix_init(uint width, uint height, byte debug_mode) {
     return 0;
 }
 
+__declspec(dllexport)
 int matrix_put(pixel *image) {
     // Don't allow new data while still flipping the buffers.
     if (flip_buffers != 0) {
@@ -155,11 +156,13 @@ int matrix_put(pixel *image) {
     return 0;
 }
 
+__declspec(dllexport)
 int matrix_flip() {
     flip_buffers = 1;
     return 0;
 }
 
+__declspec(dllexport)
 void matrix_release() {
     running = 0;
     pthread_join(*thread, NULL);

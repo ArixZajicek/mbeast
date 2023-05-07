@@ -1,6 +1,7 @@
-/.vscode
+.vscode
+.vs
+build
+x64
 
-/libcostume/build/
-/libcostume/libcostume.so
-
-/tests/main
+*.filters
+*.user

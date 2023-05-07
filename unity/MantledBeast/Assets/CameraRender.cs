@@ -1,38 +1,59 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using System.Runtime.InteropServices;
+using System;
+using Unity.Collections;
 
 public class CameraRender : MonoBehaviour
 {
-    [DllImport("libcostume.so")]
+    [DllImport("costume")]
     private static extern int matrix_init(int width, int height, int debug);
 
-    [DllImport("libcostume.so")]
-    private static extern int matrix_put(RenderBuffer val);
+    [DllImport("costume")]
+    private static extern int matrix_put(NativeArray<Color32> bytes);
 
-    [DllImport("libcostume.so")]
+    [DllImport("costume")]
     private static extern int matrix_flip();
 
-    [DllImport("libcostume.so")]
+    [DllImport("costume")]
     private static extern int matrix_release();
 
-    private Texture2D destinationTexture;
+    public Renderer screenGrabRenderer;
+
+    private Texture2D pixels;
+    private bool readyForGrab;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Set up pixels tex for grabbing into
+        pixels = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+        screenGrabRenderer.material.mainTexture = pixels;
+        Camera.onPostRender += OnPostRenderCallback;
+
         matrix_release();
-        matrix_init(800, 600, 1);
-        destinationTexture = new Texture2D(800, 600, TextureFormat.RGB24, false);
+        matrix_init(Screen.width, Screen.height, 1);
+        readyForGrab = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Texture2D tex = new Texture2D(800, 600);
-        tex.ReadPixels(new Rect(0, 0, 800, 600), 0, 0, false);
-        matrix_put(tex);
-        matrix_flip();
+    }
+
+    private void OnPostRenderCallback(Camera camera)
+    {
+        if (readyForGrab && camera == Camera.main)
+        {
+            readyForGrab = false;
+            pixels.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
+
+            matrix_put(pixels.GetRawTextureData<Color32>());
+            matrix_flip();
+
+            readyForGrab = true;
+        }
     }
 }
