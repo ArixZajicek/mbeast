@@ -5,55 +5,63 @@ using UnityEngine.Rendering;
 using System.Runtime.InteropServices;
 using System;
 using Unity.Collections;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.U2D;
 
 public class CameraRender : MonoBehaviour
 {
-    [DllImport("costume")]
+    public bool UseNativeLib;
+
+    const int WIDTH = 256, HEIGHT = 64;
+
+    [DllImport("costume.dll")]
     private static extern int matrix_init(int width, int height, int debug);
 
-    [DllImport("costume")]
-    private static extern int matrix_put(NativeArray<Color32> bytes);
+    [DllImport("costume.dll")]
+    private static extern void matrix_tick();
 
-    [DllImport("costume")]
-    private static extern int matrix_flip();
+    [DllImport("costume.dll")]
+    private static extern void matrix_put(byte[] pixels);
 
-    [DllImport("costume")]
-    private static extern int matrix_release();
+    [DllImport("costume.dll")]
+    private static extern void matrix_flip();
 
-    public Renderer screenGrabRenderer;
-
-    private Texture2D pixels;
-    private bool readyForGrab;
+    [DllImport("costume.dll")]
+    private static extern void matrix_release();
 
     // Start is called before the first frame update
     void Start()
     {
-        // Set up pixels tex for grabbing into
-        pixels = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-        screenGrabRenderer.material.mainTexture = pixels;
-        Camera.onPostRender += OnPostRenderCallback;
-
-        matrix_release();
-        matrix_init(Screen.width, Screen.height, 1);
-        readyForGrab = true;
+        if (UseNativeLib)
+        {
+            matrix_init(WIDTH, HEIGHT, 1);           
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        matrix_tick();
     }
+    
+    private void OnPostRender()
+    {
+        OnPostRenderCallback(GetComponent<Camera>());
+    } 
 
     private void OnPostRenderCallback(Camera camera)
     {
-        if (readyForGrab && camera == Camera.main)
+        if (camera != null)
         {
-            readyForGrab = false;
-            pixels.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
-
-            matrix_put(pixels.GetRawTextureData<Color32>());
+            Texture2D pixels = new Texture2D(WIDTH, HEIGHT, TextureFormat.RGBA32, false);
+            pixels.ReadPixels(new Rect(0, 0, WIDTH, HEIGHT), 0, 0, false);
+            matrix_put(pixels.GetRawTextureData());
             matrix_flip();
-
-            readyForGrab = true;
         }
+    }
+    
+    private void OnApplicationQuit()
+    {
+        matrix_release();
     }
 }

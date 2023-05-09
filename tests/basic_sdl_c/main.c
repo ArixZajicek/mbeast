@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../libcostume/libcostume.h"
+#include "libcostume.h"
 
 
-const uint WIDTH = 800, HEIGHT = 600;
+const unsigned int WIDTH = 800, HEIGHT = 600;
 const double MAX_DIST = 600;
 
 double distance(double x1, double y1, double x2, double y2) {
@@ -37,28 +37,34 @@ int main(int argc, char** argv) {
 
     matrix_init(WIDTH, HEIGHT, 1);
 
-    uint8_t* pixels = malloc(WIDTH * HEIGHT * 3);
+    pixel* pixels = malloc(WIDTH * HEIGHT * sizeof(pixel));
 
-    // fill with random data
-    for (int x = 0; x < WIDTH; x++) {
-        for (int y = 0; y < HEIGHT; y++) {
-            int i = (y * WIDTH + x) * 3;
+    int dir = 1;
+    int t = 0;
 
-            pixels[i + 2] = get_value(x, y, 0, 0);
-            pixels[i + 1] = get_value(x, y, 800, 0);
-            pixels[i] = get_value(x, y, 400, 600);
+    while (1) {
+        // fill with random data
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                int i = (y * WIDTH + x);
+                pixels[i].a = get_value(x, y, 400, 600 - t / 2);
+                pixels[i].g = get_value(x, y, 0 + t / 4, 0 + t / 2);
+                pixels[i].b = get_value(x, y, 800 - t, 0);
+            }
         }
+
+        matrix_put(pixels);
+        matrix_flip();
+        matrix_tick();
+
+        t += dir;
+        if (t >= 800) dir = -1;
+        if (t <= 0) dir = 1;    
     }
 
-    matrix_put(pixels);
-
-    matrix_flip();
-
-    char* read_data = malloc(sizeof(char) * 80);
-
-    scanf_s(read_data, 80);
-
+    printf("releasing matrix\n");
     matrix_release();
+    printf("matrix released\n");
 
     return 0;
 }

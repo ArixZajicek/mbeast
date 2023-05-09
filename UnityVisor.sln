@@ -5,9 +5,11 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcostume", "libcostume\libcostume.vcxproj", "{08458964-8F46-49CA-AF09-B1FD5F4DBEE9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "tests\tests.vcxproj", "{0C8C7571-6ADC-49CC-BD95-889140B8ED61}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "tests\basic_sdl_c\basic_sdl_c.vcxproj", "{0C8C7571-6ADC-49CC-BD95-889140B8ED61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "unity\MantledBeast\Assembly-CSharp.csproj", "{254FA068-730C-9FBF-1340-4BC36C7931E9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tests-csharp", "tests\basic_sdl_csharp\basic_sdl_csharp.csproj", "{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{254FA068-730C-9FBF-1340-4BC36C7931E9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{254FA068-730C-9FBF-1340-4BC36C7931E9}.Release|x64.ActiveCfg = Release|Any CPU
 		{254FA068-730C-9FBF-1340-4BC36C7931E9}.Release|x64.Build.0 = Release|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1BDB767-525A-47C0-BB3A-08A2ECA2248E}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

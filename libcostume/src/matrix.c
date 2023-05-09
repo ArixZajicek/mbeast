@@ -1,181 +1,157 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
+#include <SDL2/SDL.h>
 
 #include "matrix.h"
 
-// SDL2 only needed for debug mode, not needed for final build
-#include <SDL2/SDL.h>
+#define DEBUG_LOG
 
-#define LOG(...) printf(__VA_ARGS__); printf("\n")
+#ifdef DEBUG_LOG
+    #define LOG(...) printf("[MATRIX: %s()] ", __FUNCTION__); printf(__VA_ARGS__); printf("\n")
+#else
+    #define LOG(...) ;
+#endif
 
-byte debug = 0;
-SDL_Window *d_window = NULL;
-SDL_Surface *d_surface = NULL;
+// Flags
+unsigned int debug = 0;
+unsigned int init_success = 0;
+unsigned int flip_buffers = 0;
+
+// SDL Relevant stuff
+SDL_Window *sdl_win = NULL;
+SDL_Surface *sdl_win_surface = NULL;
 SDL_Surface *d_temp = NULL;
 
-// New thread info
-byte running = 0;
-byte flip_buffers = 0;
-pthread_t *thread = NULL;
-
 // Buffers
-pixel *_buffer = NULL;
 pixel *backbuffer = NULL;
 pixel *frontbuffer = NULL;
 
 // Matrix info
-uint matrix_width = 0;
-uint matrix_height = 0;
-
-void *run(void *p) {
-    printf("starting run\n");
-
-    running = 1;
-    while (running != 0) {
-        if (flip_buffers) {
-            pixel *old_frontbuffer = frontbuffer;
-            frontbuffer = backbuffer;
-            backbuffer = old_frontbuffer;
-            
-            if (debug) {
-                printf("flip_buffers() debug\n");
-                d_temp = SDL_CreateRGBSurfaceFrom(
-                    frontbuffer, 
-                    matrix_width, matrix_height, 
-                    24, 
-                    3 * matrix_width,
-                    0xFF0000, 0xFF00, 0xFF, 0x00);
-                
-                SDL_BlitSurface(d_temp, NULL, d_surface, NULL);
-                SDL_UpdateWindowSurface(d_window);
-                SDL_FreeSurface(d_temp);
-                printf("flip_buffers() finished\n");
-            } else {
-                // TODO: call display write on rpi library with new frontbuffer
-            } 
-
-            flip_buffers = 0;
-        }
-
-        if (debug) {
-            SDL_Event e;
-            while (SDL_PollEvent(&e)) {
-                if (e.type == SDL_QUIT) running = 0;
-            }
-            SDL_Delay(16);
-        } else {
-            // Otherwise, update/refresh lib? gotta look into hub75 lib
-        }
-    }
-    //Deallocate surface
-    SDL_FreeSurface(d_surface);
-    d_surface = NULL;
-
-    //Destroy window
-    SDL_DestroyWindow(d_window);
-    d_window = NULL;
-
-    //Quit SDL subsystems
-    SDL_Quit();
-}
+unsigned int width = 0;
+unsigned int height = 0;
 
 __declspec(dllexport)
-int matrix_init(uint width, uint height, byte debug_mode) {
-    // Prevent multiple instances
-    if (thread != NULL) {
-        return -1;
-    }
-
-    printf("matrix_init: starting with dimensions %dx%d\n", width, height);
-
+int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
+    // Set globals
     debug = debug_mode;
+    width = matrix_width;
+    height = matrix_height;
 
-    // Set matrix details
-    matrix_width = width;
-    matrix_height = height;
+    LOG("debug mode: %d", debug_mode);
+    LOG("starting with dimensions %dx%d", width, height);
 
     // Initialize double buffers
-    _buffer = malloc(matrix_width * matrix_height * sizeof(pixel) * 2);
-    backbuffer = _buffer;
-    frontbuffer = _buffer + matrix_width * matrix_height * sizeof(pixel);
+    backbuffer = malloc(matrix_width * matrix_height * sizeof(pixel));
+    frontbuffer = malloc(matrix_width * matrix_height * sizeof(pixel));
+    LOG("finished allocating buffers");
 
-    printf("finished allocation buffer\n");
+    if (debug) {
+        LOG("starting SDL window with resolution %dx%d", width, height);
 
-    if (debug) { // SDL init
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-            printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+            LOG("SDL could not initialize! SDL_Error: %s", SDL_GetError());
             return -1;
         }
-        
-        printf("starting window with resolution %dx%d\n", matrix_width, matrix_height);
-        d_window = SDL_CreateWindow(
+
+        sdl_win = SDL_CreateWindow(
             "HUB75 Matrix Debug Window",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            matrix_width, matrix_height,
+            width, height,
             SDL_WINDOW_SHOWN);
-        
-        if (d_window == NULL) {
-            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+
+        if (sdl_win == NULL) {
+            LOG("Window could not be created! SDL_Error: %s", SDL_GetError());
             return -1;
         }
 
-        d_surface = SDL_GetWindowSurface(d_window);
+        sdl_win_surface = SDL_GetWindowSurface(sdl_win);
 
-        printf("sdl_init_complete\n");
+        SDL_FillRect(sdl_win_surface, NULL, SDL_MapRGB(sdl_win_surface->format, 0xFF, 0xFF, 0xFF));
+        SDL_UpdateWindowSurface(sdl_win);
 
-        //Fill the surface white
-        SDL_FillRect(d_surface, NULL, SDL_MapRGB(d_surface->format, 0xFF, 0xFF, 0xFF));
-        
-        //Update the surface
-        SDL_UpdateWindowSurface(d_window);
+        init_success = 1;
     } else {
         // TODO: Initialize HUB75 library
     }
 
-    // Launch thread
-    thread = malloc(sizeof(pthread_t));
-    pthread_create(thread, NULL, run, NULL);
-
-    printf("new thread started\n");
-
     return 0;
 }
 
 __declspec(dllexport)
-int matrix_put(pixel *image) {
-    // Don't allow new data while still flipping the buffers.
-    if (flip_buffers != 0) {
-        printf("WARNING: attempted to put pixel data while flipping buffers\n");
+void matrix_tick() {
+    if (debug) {
+        SDL_Event e;
+        if (flip_buffers != 0) {
+            LOG("beginning buffer flip");
+            // Swap buffer pointers first
+            pixel* temp_buffer = frontbuffer;
+            frontbuffer = backbuffer;
+            backbuffer = temp_buffer;
+
+            d_temp = SDL_CreateRGBSurfaceFrom(
+                frontbuffer,
+                width, height,
+                32,
+                4 * width,
+                0xFF, 0xFF00, 0xFF0000, 0x00);
+
+            SDL_BlitSurface(d_temp, NULL, sdl_win_surface, NULL);
+            SDL_FreeSurface(d_temp);
+
+            flip_buffers = 0;
+            LOG("buffer flip complete");
+        }
+
+        while (SDL_PollEvent(&e) != 0) {}
+
+        SDL_UpdateWindowSurface(sdl_win);
+    } else {
+        // TODO: rpi_tick
+    }
+}
+
+__declspec(dllexport)
+void matrix_put(pixel *image) {
+    if (init_success == 0) {
+        LOG("attempted to put pixels when not initialized, aborting");
+        return;
+    }
+
+    memcpy(backbuffer, image, width * height * sizeof(pixel));
+    LOG("copied new data into backbuffer");
+}
+
+__declspec(dllexport)
+void matrix_flip() {
+    if (init_success == 0) {
+        LOG("attempted to flip buffers when not initialized, aborting");
         return -1;
     }
 
-    // Copy
-    memcpy(backbuffer, image, matrix_width * matrix_height * sizeof(pixel));
-    LOG("copied new %d data into backbuffer", matrix_width * matrix_height * sizeof(pixel));
-    return 0;
-}
-
-__declspec(dllexport)
-int matrix_flip() {
     flip_buffers = 1;
-    return 0;
 }
 
 __declspec(dllexport)
 void matrix_release() {
-    running = 0;
-    pthread_join(*thread, NULL);
-    thread = NULL;
+    if (init_success != 0) {
+        init_success = 0;
 
-    if (debug) {
-        SDL_DestroyWindow(d_window);
-        SDL_Quit();
+        if (debug) {
+            SDL_FreeSurface(sdl_win_surface);
+            sdl_win_surface = NULL;
+            SDL_DestroyWindow(sdl_win);
+            sdl_win = NULL;
+            SDL_Quit();
+            SDL_DestroyWindow(sdl_win);
+            SDL_VideoQuit();
+        }
+
+        if (backbuffer != NULL || frontbuffer != NULL) {
+            free(backbuffer);
+            free(frontbuffer);
+            backbuffer = NULL;
+            frontbuffer = NULL;
+        }
     }
-
-    free(_buffer);
-    _buffer = NULL;
-    backbuffer = NULL;
-    frontbuffer = NULL;
     flip_buffers = 0;
 }

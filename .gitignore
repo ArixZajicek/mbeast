@@ -1,7 +1,9 @@
 .vscode
 .vs
 build
-x64
+/tests/**/bin
+/tests/**/obj
+/tests/**/x64
 
 *.filters
 *.user
