@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "matrix.h"
-#include "../ext/rpi-rgb-led-matrix/include/led-matrix-c.h"
+#include "led-matrix-c.h"
 
 // Flags
 unsigned int debug = 0;
