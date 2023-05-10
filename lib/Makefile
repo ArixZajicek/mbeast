@@ -8,7 +8,7 @@ OBJDIR=temp/obj
 DEPDIR=temp/dep
 
 # Main Target object/name
-TARGET=libcostume.so
+TARGET=libcostume.a
 
 # Raspberry Pi name and paths
 RPI_RGB_LIB_NAME=rgbmatrix
@@ -16,8 +16,9 @@ RPI_RGB_LIB_DIR=ext/rpi_rgb_led_matrix
 RPI_RGB_LIB_FULLPATH=$(RPI_RGB_LIB_DIR)/lib/lib$(RPI_RGB_LIB_NAME).a
 
 # Compile flags
-CLIBS=-lSDL2 -I$(RPI_RGB_LIB_DIR)/include -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME)
-CFLAGS=$(CLIBS) -fPIC -I$(INCDIR)
+CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME)
+CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(INCDIR)
+CFLAGS=$(CLIBS) -fPIC $(CINCLUDES)
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.c)
@@ -27,7 +28,8 @@ DEPS=$(subst $(SRCDIR),$(DEPDIR),$(SRCS:.c=.d))
 # Main library output
 $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(OBJS)
 	@echo Building final target $(TARGET)...
-	@$(CC) -o $@ $^ $(CFLAGS) -shared
+# @$(CC) -o $@ $^ $(CFLAGS) -shared
+	ar rcs $@ $^
 	@echo Done.
 
 # Raspberry Pi Lib
@@ -50,4 +52,4 @@ $(DEPS): $(RPI_RGB_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.c))
 .PHONY: clean
 clean:
 	@echo Removing $(OBJDIR), $(DEPDIR), and $(TARGET)...
-	rm -fr ./temp/ ./ext/ $(TARGET) 
+	rm -fr ./temp/ $(TARGET) 
