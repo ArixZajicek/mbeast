@@ -1,9 +1,10 @@
-.vscode
-.vs
-build
-/tests/**/bin
-/tests/**/obj
-/tests/**/x64
 
-*.filters
-*.user
+# lib temporary files
+lib/temp
+lib/ext
+
+# Built files
+*.so
+*.o
+*.a
+*.dll
