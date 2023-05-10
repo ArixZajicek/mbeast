@@ -87,7 +87,7 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
             0,      // N/A --led-hardware-pulse
             0,      // N/A --led-show-refresh
             0,      // N/A --led-inverse
-            NULL,   // N/A --led-rgb-sequence
+            "BGR",  // --led-rgb-sequence
             NULL,   // N/A --led-pixel-mapper
             NULL,   // N/A --led-panel-type
             0       // N/A --led-limit-refresh
@@ -104,6 +104,7 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
         matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
         struct LedCanvas *cvs = led_matrix_get_canvas(matrix);
         led_canvas_fill(cvs, 0, 0xFF, 0xFF);
+        init_success = 1;
 
     }
 
