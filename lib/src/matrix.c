@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "matrix.h"
+#include "../ext/rpi-rgb-led-matrix/include/led-matrix-c.h"
 
 // Flags
 unsigned int debug = 0;
@@ -13,6 +14,9 @@ unsigned int flip_buffers = 0;
 SDL_Window *sdl_win = NULL;
 SDL_Surface *sdl_win_surface = NULL;
 SDL_Surface *d_temp = NULL;
+
+// RGB Matrix Stuff
+struct RGBLedMatrix *matrix = NULL;
 
 // Buffers
 pixel *backbuffer = NULL;
@@ -62,7 +66,45 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
 
         init_success = 1;
     } else {
-        // TODO: Initialize HUB75 library
+        struct RGBLedMatrixOptions matrix_opts = {
+            NULL,   // name of hardware mapping
+            64,     // --led-rows
+            64,     // --led-cols
+            2,      // --led-chain
+            2,      // --led-parallel
+
+            0,      // N/A --led-pwm-bits (default is 11)
+            0,      // N/A --led-pwm-lsb-nanoseconds
+            0,      // N/A --led-pwm-dither-bits
+
+            50,     // --led-brightness
+
+            0,      // N/A --led-scan-mode
+
+            3,      // --led-row-addr-type
+
+            0,      // N/A multiplexing
+            0,      // N/A --led-hardware-pulse
+            0,      // N/A --led-show-refresh
+            0,      // N/A --led-inverse
+            NULL,   // N/A --led-rgb-sequence
+            NULL,   // N/A --led-pixel-mapper
+            NULL,   // N/A --led-panel-type
+            0       // N/A --led-limit-refresh
+        };
+
+        struct RGBLedRuntimeOptions matrix_runtime_opts = {
+            4,      // --led-slowdown-gpio
+            0,      // N/A --led-daemon
+            (bool)0,      // N/A do_gpio_init
+            NULL,
+            NULL
+        };
+
+        matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
+        struct LedCanvas *cvs = led_matrix_get_canvas(matrix);
+        led_canvas_fill(cvs, 0, 0xFF, 0xFF);
+
     }
 
     return 0;
@@ -131,6 +173,8 @@ _DLL void matrix_release() {
             SDL_Quit();
             SDL_DestroyWindow(sdl_win);
             SDL_VideoQuit();
+        } else {
+            led_matrix_delete(matrix);
         }
 
         if (backbuffer != NULL || frontbuffer != NULL) {
