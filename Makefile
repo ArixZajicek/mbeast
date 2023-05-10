@@ -2,13 +2,13 @@
 CC=gcc
 
 # Important directories, relative to this Makefile
-SRCDIR=src
-INCDIR=src
+SRCDIR=libcostume/src
+INCDIR=libcostume/src
 OBJDIR=build/obj
 DEPDIR=build/dep
 
 # Main Target object/name
-TARGET=libcostume.so
+TARGET=build/libcostume.so
 
 # Compile flags
 CLIBS=
@@ -37,13 +37,10 @@ $(DEPS): $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.c))
 
 # Test 
 test: $(TARGET)
-	@gcc tests/main.c -o test -I. -L. -lcostume -lm
-	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./test
+	@gcc tests/basic_sdl_c/main.c -o build/test -Ilibcostume -Lbuild -lcostume -lm
+	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:./build ./build/test
 
 .PHONY: clean
 clean:
 	@echo Removing $(OBJDIR), $(DEPDIR), and $(TARGET)...
-	@rm -fr $(OBJDIR)
-	@rm -fr $(DEPDIR)
-	@rm -f $(TARGET)
-	@rm -f ./test
+	@rm -f ./build/

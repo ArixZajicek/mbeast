@@ -4,14 +4,6 @@
 
 #include "matrix.h"
 
-#define DEBUG_LOG
-
-#ifdef DEBUG_LOG
-    #define LOG(...) printf("[MATRIX: %s()] ", __FUNCTION__); printf(__VA_ARGS__); printf("\n")
-#else
-    #define LOG(...) ;
-#endif
-
 // Flags
 unsigned int debug = 0;
 unsigned int init_success = 0;
@@ -30,8 +22,7 @@ pixel *frontbuffer = NULL;
 unsigned int width = 0;
 unsigned int height = 0;
 
-__declspec(dllexport)
-int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
+_DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
     // Set globals
     debug = debug_mode;
     width = matrix_width;
@@ -77,8 +68,7 @@ int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
     return 0;
 }
 
-__declspec(dllexport)
-void matrix_tick() {
+_DLL void matrix_tick() {
     if (debug) {
         SDL_Event e;
         if (flip_buffers != 0) {
@@ -110,8 +100,7 @@ void matrix_tick() {
     }
 }
 
-__declspec(dllexport)
-void matrix_put(pixel *image) {
+_DLL void matrix_put(pixel *image) {
     if (init_success == 0) {
         LOG("attempted to put pixels when not initialized, aborting");
         return;
@@ -121,18 +110,16 @@ void matrix_put(pixel *image) {
     LOG("copied new data into backbuffer");
 }
 
-__declspec(dllexport)
-void matrix_flip() {
+_DLL void matrix_flip() {
     if (init_success == 0) {
         LOG("attempted to flip buffers when not initialized, aborting");
-        return -1;
+        return;
     }
 
     flip_buffers = 1;
 }
 
-__declspec(dllexport)
-void matrix_release() {
+_DLL void matrix_release() {
     if (init_success != 0) {
         init_success = 0;
 
