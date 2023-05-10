@@ -6,7 +6,7 @@
 
 
 const unsigned int WIDTH = 800, HEIGHT = 600;
-const double MAX_DIST = 600;
+const double MAX_DIST = HEIGHT;
 
 double distance(double x1, double y1, double x2, double y2) {
     double dx = abs(x1 - x2);
@@ -35,7 +35,7 @@ void set_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t*
 int main(int argc, char** argv) {
     printf("starting in main\n");
 
-    matrix_init(WIDTH, HEIGHT, 1);
+    matrix_init(WIDTH, HEIGHT, 0);
 
     pixel* pixels = malloc(WIDTH * HEIGHT * sizeof(pixel));
 
@@ -47,9 +47,9 @@ int main(int argc, char** argv) {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 int i = (y * WIDTH + x);
-                pixels[i].a = get_value(x, y, 400, 600 - t / 2);
+                pixels[i].a = get_value(x, y, WIDTH/2, HEIGHT - t / 2);
                 pixels[i].g = get_value(x, y, 0 + t / 4, 0 + t / 2);
-                pixels[i].b = get_value(x, y, 800 - t, 0);
+                pixels[i].b = get_value(x, y, WIDTH - t, 0);
             }
         }
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
         matrix_tick();
 
         t += dir;
-        if (t >= 800) dir = -1;
+        if (t >= WIDTH) dir = -1;
         if (t <= 0) dir = 1;    
     }
 
