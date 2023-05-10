@@ -103,7 +103,7 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
 
         matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
         struct LedCanvas *cvs = led_matrix_get_canvas(matrix);
-        led_canvas_fill(cvs, 0, 0xFF, 0xFF);
+        led_canvas_fill(cvs, 0xFF, 0xFF, 0);
         init_success = 1;
 
     }
