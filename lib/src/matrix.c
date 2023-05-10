@@ -103,9 +103,8 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
 
         matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
         struct LedCanvas *cvs = led_matrix_get_canvas(matrix);
-        led_canvas_fill(cvs, 0xFF, 0xFF, 0);
+        led_canvas_fill(cvs, 0, 0xFF, 0xFF);
         init_success = 1;
-
     }
 
     return 0;
@@ -140,6 +139,7 @@ _DLL void matrix_tick() {
         SDL_UpdateWindowSurface(sdl_win);
     } else {
         // TODO: rpi_tick
+        
     }
 }
 
