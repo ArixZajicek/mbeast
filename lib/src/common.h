@@ -5,7 +5,7 @@
 #include <inttypes.h>
 
 // Should Debug logs be generated?
-#define DEBUG_LOG
+//#define DEBUG_LOG
 
 // Required for MSVC DLL functions
 #ifdef _MSC_VER

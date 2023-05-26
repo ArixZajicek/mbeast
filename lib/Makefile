@@ -18,7 +18,7 @@ RPI_RGB_LIB_FULLPATH=$(RPI_RGB_LIB_DIR)/lib/lib$(RPI_RGB_LIB_NAME).a
 # Compile flags
 CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME)
 CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(INCDIR)
-CFLAGS=$(CLIBS) -fPIC $(CINCLUDES)
+CFLAGS=$(CLIBS) -fPIC -O3 $(CINCLUDES)
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.c)

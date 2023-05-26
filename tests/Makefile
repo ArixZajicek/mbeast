@@ -8,11 +8,11 @@ CINCLUDES=-I../include
 
 .PHONY:
 run-basic: basic_sdl_c/main.o
-	(LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(RPILIBDIR):$(LIBDIR) ./basic_sdl_c/main.o)
+	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(RPILIBDIR):$(LIBDIR) sudo ./basic_sdl_c/main.o
 
 # Test 
 basic_sdl_c/main.o:
-	gcc $(CINCLUDES) $(CLIBDIRS) $(CLIBS) basic_sdl_c/main.c -o basic_sdl_c/main.o -lcostume -lSDL2 -lrgbmatrix -lrt -lm -lpthread -lstdc++
+	gcc $(CINCLUDES) $(CLIBDIRS) $(CLIBS) basic_sdl_c/main.c -o basic_sdl_c/main.o -O3 -lcostume -lSDL2 -lrgbmatrix -lrt -lm -lpthread -lstdc++
 
 .PHONY:
 clean:

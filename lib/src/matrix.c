@@ -17,6 +17,7 @@ SDL_Surface *d_temp = NULL;
 
 // RGB Matrix Stuff
 struct RGBLedMatrix *matrix = NULL;
+struct LedCanvas *back_canvas, *front_canvas;
 
 // Buffers
 pixel *backbuffer = NULL;
@@ -90,11 +91,11 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
             "BGR",  // --led-rgb-sequence
             NULL,   // N/A --led-pixel-mapper
             NULL,   // N/A --led-panel-type
-            0       // N/A --led-limit-refresh
+            75       // N/A --led-limit-refresh
         };
 
         struct RGBLedRuntimeOptions matrix_runtime_opts = {
-            4,      // --led-slowdown-gpio
+            5,      // --led-slowdown-gpio (used to be 4)
             0,      // N/A --led-daemon
             (bool)0,      // N/A do_gpio_init
             NULL,
@@ -102,8 +103,10 @@ _DLL int matrix_init(uint matrix_width, uint matrix_height, byte debug_mode) {
         };
 
         matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
-        struct LedCanvas *cvs = led_matrix_get_canvas(matrix);
-        led_canvas_fill(cvs, 0, 0xFF, 0xFF);
+        front_canvas = led_matrix_get_canvas(matrix);
+        back_canvas = led_matrix_create_offscreen_canvas(matrix);
+        led_canvas_fill(back_canvas, 0, 0xFF, 0);
+        led_canvas_fill(front_canvas, 0xFF, 0xFF, 0xFF);
         init_success = 1;
     }
 
@@ -114,7 +117,6 @@ _DLL void matrix_tick() {
     if (debug) {
         SDL_Event e;
         if (flip_buffers != 0) {
-            LOG("beginning buffer flip");
             // Swap buffer pointers first
             pixel* temp_buffer = frontbuffer;
             frontbuffer = backbuffer;
@@ -131,15 +133,17 @@ _DLL void matrix_tick() {
             SDL_FreeSurface(d_temp);
 
             flip_buffers = 0;
-            LOG("buffer flip complete");
         }
 
         while (SDL_PollEvent(&e) != 0) {}
 
         SDL_UpdateWindowSurface(sdl_win);
     } else {
-        // TODO: rpi_tick
-        
+        if (flip_buffers != 0) {
+            back_canvas = led_matrix_swap_on_vsync(matrix, back_canvas);
+            flip_buffers = 0;
+            LOG("buffer flip complete");
+        }
     }
 }
 
@@ -148,9 +152,16 @@ _DLL void matrix_put(pixel *image) {
         LOG("attempted to put pixels when not initialized, aborting");
         return;
     }
-
-    memcpy(backbuffer, image, width * height * sizeof(pixel));
-    LOG("copied new data into backbuffer");
+    if (debug) {
+        memcpy(backbuffer, image, width * height * sizeof(pixel));
+    } else {
+        for (int x = 0; x < 128; x++) {
+            for (int y = 0; y < 128; y++) {
+                led_canvas_set_pixel(back_canvas, x, y, image->r, image->g, image->b);
+            }
+        }
+        LOG("copied new data into back canvas using manual fill");
+    }
 }
 
 _DLL void matrix_flip() {
@@ -158,6 +169,7 @@ _DLL void matrix_flip() {
         LOG("attempted to flip buffers when not initialized, aborting");
         return;
     }
+    LOG("set buffer flip");
 
     flip_buffers = 1;
 }

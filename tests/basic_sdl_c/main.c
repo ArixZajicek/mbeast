@@ -5,8 +5,8 @@
 #include "libcostume.h"
 
 
-const unsigned int WIDTH = 800, HEIGHT = 600;
-const double MAX_DIST = HEIGHT;
+const unsigned int WIDTH = 128, HEIGHT = 128;
+const double MAX_DIST = HEIGHT/2;
 
 double distance(double x1, double y1, double x2, double y2) {
     double dx = abs(x1 - x2);
@@ -43,11 +43,12 @@ int main(int argc, char** argv) {
     int t = 0;
 
     while (1) {
+        
         // fill with random data
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 int i = (y * WIDTH + x);
-                pixels[i].a = get_value(x, y, WIDTH/2, HEIGHT - t / 2);
+                pixels[i].r = get_value(x, y, WIDTH/2, HEIGHT - t / 2);
                 pixels[i].g = get_value(x, y, 0 + t / 4, 0 + t / 2);
                 pixels[i].b = get_value(x, y, WIDTH - t, 0);
             }
