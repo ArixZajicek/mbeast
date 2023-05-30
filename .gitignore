@@ -1,3 +1,6 @@
+/build
+/lib/rip_rgb_led_matrix
+
 # Built files
 *.so
 *.o

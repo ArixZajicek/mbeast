@@ -2,6 +2,8 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
+#include <iostream>
+
 #define DEBUG_LOG
 
 // Easier consistent log formatting
@@ -10,6 +12,8 @@
 #else
 #define LOG(...) ;
 #endif
+
+#define ABORT(str) std::cout << "ERROR IN " << __FUNCTION__ << "(): " << str << std::endl; exit(-1)
 
 static bool DEBUG = true;
 

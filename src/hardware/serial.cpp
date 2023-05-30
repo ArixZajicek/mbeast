@@ -8,18 +8,19 @@
 #include <sys/ioctl.h>
 
 #include "hardware.hpp"
+#include "common.hpp"
 
 Serial::Serial(const char *dev) {
   port = open(dev, O_RDWR);
 
   if (port < 0) {
-    throw std::runtime_error("Failed to open device (" + std::to_string(errno) + "): " + strerror(errno));
+    ABORT("Failed to open device (" + std::to_string(errno) + "): " + strerror(errno));
   }
 
   termios tty;
 
   if (tcgetattr(port, &tty) != 0) {
-    throw std::runtime_error("Failure from tcgetattr (" + std::to_string(errno) + "): " + strerror(errno));
+    ABORT("Failure from tcgetattr (" + std::to_string(errno) + "): " + strerror(errno));
   }
 
   tty.c_cflag &= ~PARENB;
@@ -50,7 +51,7 @@ Serial::Serial(const char *dev) {
   cfsetospeed(&tty, B115200);
 
   if (tcsetattr(port, TCSANOW, &tty) != 0) {
-    throw std::runtime_error("Failure from tcsetattr (" + std::to_string(errno) + "): " + strerror(errno));
+    ABORT("Failure from tcsetattr (" + std::to_string(errno) + "): " + strerror(errno));
   }
 }
 
@@ -81,7 +82,7 @@ void Serial::tick(double delta) {
         active->emptyDuration += delta;
       } else if (available < 0) {
         active->status == ERROR;
-        throw std::runtime_error("Failure retrieving response size (available=" + std::to_string(available) + ", read=" + std::to_string(bytesRead) + ")");
+        ABORT("Failure retrieving response size (available=" + std::to_string(available) + ", read=" + std::to_string(bytesRead) + ")");
       }
     }
 
@@ -94,7 +95,7 @@ void Serial::tick(double delta) {
         active->emptyDuration += delta;
       } else if (bytesRead < 0) {
         active->status == ERROR;
-        throw std::runtime_error("Failure retrieving response data (bytesRead=" + std::to_string(bytesRead) + ")");
+        ABORT("Failure retrieving response data (bytesRead=" + std::to_string(bytesRead) + ")");
       }
 
       if (active->bytesRead == active->response.length) {
@@ -104,7 +105,7 @@ void Serial::tick(double delta) {
 
     if (active->emptyDuration > TIMEOUT_DURATION) {
       active->status = ERROR;
-      throw std::runtime_error("Message took too long to complete (" + std::to_string(active->emptyDuration) + " seconds)");
+      ABORT("Message took too long to complete (" + std::to_string(active->emptyDuration) + " seconds)");
     }
 
     if (active->status == RESPONSE_RECEIVED || active->status == ERROR) {
@@ -136,6 +137,8 @@ uint32_t Serial::sendMessage(void *data, uint16_t len) {
   if (active == nullptr) {
     active = msg;
   }
+
+  return msg->id;
 }
 
 Serial::Status Serial::getStatus(uint32_t id) {

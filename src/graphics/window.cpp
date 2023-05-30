@@ -9,7 +9,7 @@ Window::Window(int w, int h) {
   this->height = h;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    throw std::runtime_error("SDL could not initialize!");
+    ABORT("SDL could not initialize!" << std::endl << SDL_GetError());
   }
 
   window = SDL_CreateWindow(
@@ -20,7 +20,7 @@ Window::Window(int w, int h) {
   );
 
   if (window == nullptr) {
-    throw std::runtime_error("SDL could not create window!");
+    ABORT("SDL could not create a window!" << std::endl << SDL_GetError());
   }
 
   windowSurface = SDL_GetWindowSurface(window);

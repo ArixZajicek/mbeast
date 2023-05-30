@@ -3,12 +3,9 @@
 
 #include <inttypes.h>
 #include <SDL2/SDL.h>
+#include "led-matrix-c.h"
 
 /**** UNIVERSAL STRUCTS ****/
-
-struct Color {
-  uint8_t r, g, b;
-};
 
 struct Vector3 {
   double x;
@@ -46,10 +43,13 @@ public:
   };
 
   Serial(const char *dev);
+  ~Serial();
+  
   void tick(double delta);
   uint32_t sendMessage(void *data, uint16_t len);
   Status getStatus(uint32_t id);
   Payload getResponse(uint32_t id);
+
 private:
   struct Message {
     uint32_t id;
@@ -114,6 +114,8 @@ public:
 
   Output(Serial *serial);
   void send(State &state);
+private:
+  Serial *serial;
 };
 
 class Input {
@@ -144,9 +146,8 @@ public:
 
 private:
   uint32_t msg;
-  Vector3 motion;
-  Vector2 analog;
-  Keys keysDown = {}, keysTyped = {};
+  State state;
+  Keys typed;
 
   Serial *serial;
 

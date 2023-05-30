@@ -8,6 +8,8 @@
 #include "hardware/hardware.hpp"
 
 namespace State {
+  // Forward declarations:
+  class IState;
 
   enum ActionType {
     NOP,
@@ -16,14 +18,13 @@ namespace State {
     SWAP,
   };
 
-  struct Action {
-    ActionType type;
-    Context *context;
-  };
-
   struct Context {
     Context *parent;
     IState *state;
+  };
+  struct Action {
+    ActionType type;
+    Context *context;
   };
 
   struct RenderContext {
@@ -55,7 +56,7 @@ namespace State {
   class Initial : public IState {
     Initial(Context *ctx);
     void enter();
-    void tick(Input::State, double, State::Action);
+    void tick(Input::State, double, State::Action) override;
     void draw(Output::State &);
     void exit();
   };

@@ -13,6 +13,7 @@ public:
   void draw(Color *pixels, int x, int y, int w, int h);
   void flip();
   Input::State getInputState();
+  ~Window();
 
 private:
   SDL_Window *window;

@@ -1,5 +1,5 @@
 # C Compiler
-CC=gcc
+CC=g++
 
 # Important directories, relative to this Makefile
 SRCDIR=src
@@ -13,13 +13,13 @@ TARGET=$(BUILDDIR)/beast
 
 # Raspberry Pi name and paths
 RPI_RGB_LIB_NAME=rgbmatrix
-RPI_RGB_LIB_DIR=lib/rpi-rgb-led-matrix
+RPI_RGB_LIB_DIR=lib/rpi_rgb_led_matrix
 RPI_RGB_LIB_FULLPATH=$(RPI_RGB_LIB_DIR)/lib/lib$(RPI_RGB_LIB_NAME).a
 
 # Compile flags
-CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME)
+CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -lpthread -lrt -lm -lpthread
 CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(INCDIR)
-CFLAGS=$(CLIBS) -fPIC -O3 $(CINCLUDES)
+CFLAGS=$(CINCLUDES) -fno-exceptions -std=c++11
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp)
@@ -29,7 +29,7 @@ DEPS=$(subst $(SRCDIR),$(DEPDIR),$(SRCS:.cpp=.d))
 # Main output
 $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(OBJS)
 	@echo Building final target $(TARGET)...
-  @$(CC) -o $@ $^ $(CFLAGS)
+	@$(CC) -o $@ $^ $(CLIBS) $(CFLAGS)
 	@echo Done.
 
 # Raspberry Pi Lib
@@ -49,5 +49,5 @@ $(DEPS): $(RPI_RGB_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp))
 
 .PHONY: clean
 clean:
-	@echo Removing $(OBJDIR), $(DEPDIR), and $(TARGET)...
-	rm -fr ./temp/ $(TARGET) 
+	rm -fr $(BUILDDIR)
+	$(MAKE) -C $(RPI_RGB_LIB_DIR)/lib clean

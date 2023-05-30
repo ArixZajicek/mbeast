@@ -1,5 +1,5 @@
 #include <iostream>
-#include "rpi-rgb-led-matrix/include/led-matrix-c.h"
+#include "led-matrix-c.h"
 
 #include "common.hpp"
 #include "hardware.hpp"
