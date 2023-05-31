@@ -1,7 +1,6 @@
 #include "graphics.hpp"
-#include "common.hpp"
+#include "debug.hpp"
 
-#include <iostream>
 
 Window::Window(int w, int h) {
   LOG("starting SDL window with resolution %dx%d", w, h);
@@ -9,7 +8,7 @@ Window::Window(int w, int h) {
   this->height = h;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    ABORT("SDL could not initialize!" << std::endl << SDL_GetError());
+    ABORT("SDL could not initialize!\n%s", SDL_GetError());
   }
 
   window = SDL_CreateWindow(
@@ -20,59 +19,62 @@ Window::Window(int w, int h) {
   );
 
   if (window == nullptr) {
-    ABORT("SDL could not create a window!" << std::endl << SDL_GetError());
+    ABORT("SDL could not create a window!\n%s", SDL_GetError());
   }
 
   windowSurface = SDL_GetWindowSurface(window);
   SDL_FillRect(windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0xFF, 0xFF, 0xFF));
   SDL_UpdateWindowSurface(window);
+
+  LOG("SDL Window created");
 }
 
-inline void keyact(Input::State *state, Input::Key k, bool pressed) {
+inline void keyact(InputState &state, InputKey k, bool pressed) {
   if (pressed) {
-    if (state->keysDown[k] == false) state->keysTyped[k] = true;
-    state->keysDown[k] = true;
+    if (state.keysDown[k] == false) state.keysTyped[k] = true;
+    state.keysDown[k] = true;
   } else {
-    state->keysDown[k] = false;
+    state.keysDown[k] = false;
   }
 }
 
 void Window::tick(double delta) {
   // New tick, reset typed keys
-  for (int k = 0; k < Input::Key::__COUNT; k++) {
-    inputState->keysTyped[k] = false;
+  for (int k = 0; k < InputKey::__COUNT; k++) {
+    inputState.keysTyped[k] = false;
   }
 
   SDL_Event e;
   while (SDL_PollEvent(&e) != 0) {
     switch (e.type) {
     case SDL_KEYDOWN: case SDL_KEYUP:
+      LOG("SDL KEY EVENT FOUND");
       switch (e.key.keysym.sym) {
       case SDLK_UP:
-        keyact(inputState, Input::Key::UP, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::UP, e.type == SDL_KEYDOWN);
         break;
       case SDLK_DOWN:
-        keyact(inputState, Input::Key::DOWN, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::DOWN, e.type == SDL_KEYDOWN);
         break;
       case SDLK_LEFT:
-        keyact(inputState, Input::Key::LEFT, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::LEFT, e.type == SDL_KEYDOWN);
         break;
       case SDLK_RIGHT:
-        keyact(inputState, Input::Key::RIGHT, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::RIGHT, e.type == SDL_KEYDOWN);
         break;
       case SDLK_x:
-        keyact(inputState, Input::Key::ACTION, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::ACTION, e.type == SDL_KEYDOWN);
         break;
       case SDLK_z:
-        keyact(inputState, Input::Key::BACK, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::BACK, e.type == SDL_KEYDOWN);
         break;
       case SDLK_SPACE:
-        keyact(inputState, Input::Key::BOOP, e.type == SDL_KEYDOWN);
+        keyact(inputState, InputKey::BOOP, e.type == SDL_KEYDOWN);
         break;
       }
       break;
     case SDL_QUIT:
-      // do something probably but idk what yet
+      keyact(inputState, InputKey::BACK, true);
       break;
     }
   }
@@ -105,16 +107,18 @@ void Window::flip() {
   SDL_UpdateWindowSurface(window);
 }
 
-Input::State Window::getInputState() {
-  return *inputState;
+InputState Window::getInputState() {
+  return inputState;
 }
 
 Window::~Window() {
+  LOG("Freeing window surface");
+
+  SDL_FreeSurface(bufferSurface);
   SDL_FreeSurface(windowSurface);
-  windowSurface = nullptr;
-  SDL_DestroyWindow(window);
-  window = nullptr;
-  SDL_Quit();
   SDL_DestroyWindow(window);
   SDL_VideoQuit();
+  SDL_Quit();
+
+  LOG("SDL Services freed");
 }

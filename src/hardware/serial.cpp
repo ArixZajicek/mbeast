@@ -8,19 +8,19 @@
 #include <sys/ioctl.h>
 
 #include "hardware.hpp"
-#include "common.hpp"
+#include "debug.hpp"
 
 Serial::Serial(const char *dev) {
   port = open(dev, O_RDWR);
 
   if (port < 0) {
-    ABORT("Failed to open device (" + std::to_string(errno) + "): " + strerror(errno));
+    ABORT("Failed to open device (%d): %s", errno, strerror(errno));
   }
 
   termios tty;
 
   if (tcgetattr(port, &tty) != 0) {
-    ABORT("Failure from tcgetattr (" + std::to_string(errno) + "): " + strerror(errno));
+    ABORT("Failure from tcgetattr (%d): %s", errno, strerror(errno));
   }
 
   tty.c_cflag &= ~PARENB;
@@ -51,7 +51,7 @@ Serial::Serial(const char *dev) {
   cfsetospeed(&tty, B115200);
 
   if (tcsetattr(port, TCSANOW, &tty) != 0) {
-    ABORT("Failure from tcsetattr (" + std::to_string(errno) + "): " + strerror(errno));
+    ABORT("Failure from tcsetattr (%d): %s", errno, strerror(errno));
   }
 }
 
@@ -82,7 +82,7 @@ void Serial::tick(double delta) {
         active->emptyDuration += delta;
       } else if (available < 0) {
         active->status == ERROR;
-        ABORT("Failure retrieving response size (available=" + std::to_string(available) + ", read=" + std::to_string(bytesRead) + ")");
+        ABORT("Failure retrieving response size (available=%d, read=%d)", available, bytesRead);
       }
     }
 
@@ -95,7 +95,7 @@ void Serial::tick(double delta) {
         active->emptyDuration += delta;
       } else if (bytesRead < 0) {
         active->status == ERROR;
-        ABORT("Failure retrieving response data (bytesRead=" + std::to_string(bytesRead) + ")");
+        ABORT("Failure retrieving response data (bytesRead=%d)", bytesRead);
       }
 
       if (active->bytesRead == active->response.length) {
@@ -105,7 +105,7 @@ void Serial::tick(double delta) {
 
     if (active->emptyDuration > TIMEOUT_DURATION) {
       active->status = ERROR;
-      ABORT("Message took too long to complete (" + std::to_string(active->emptyDuration) + " seconds)");
+      ABORT("Message took too long to complete (%f seconds)", active->emptyDuration);
     }
 
     if (active->status == RESPONSE_RECEIVED || active->status == ERROR) {
@@ -141,7 +141,7 @@ uint32_t Serial::sendMessage(void *data, uint16_t len) {
   return msg->id;
 }
 
-Serial::Status Serial::getStatus(uint32_t id) {
+SerialStatus Serial::getStatus(uint32_t id) {
   Message *cur = list;
   while (cur->id != id && cur->next != nullptr) cur = cur->next;
 
@@ -152,7 +152,7 @@ Serial::Status Serial::getStatus(uint32_t id) {
   }
 }
 
-Serial::Payload Serial::getResponse(uint32_t id) {
+SerialPayload Serial::getResponse(uint32_t id) {
   Message *cur = list;
   while (cur->id != id && cur->next != nullptr) cur = cur->next;
 
@@ -160,7 +160,7 @@ Serial::Payload Serial::getResponse(uint32_t id) {
     return { 0, nullptr };
   } else {
     list = cur->next;
-    Payload payload(cur->response);
+    SerialPayload payload(cur->response);
     delete cur;
     return payload;
   }

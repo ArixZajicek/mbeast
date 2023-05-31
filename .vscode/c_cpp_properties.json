@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/src",
+                "${workspaceFolder}/include",
                 "${workspaceFolder}/lib/rpi_rgb_led_matrix/include/",
                 "/usr/include/SDL2"
             ],

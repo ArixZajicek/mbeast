@@ -1,7 +1,7 @@
 #include <iostream>
 #include "led-matrix-c.h"
 
-#include "common.hpp"
+#include "debug.hpp"
 #include "hardware.hpp"
 
 Visor::Visor() {

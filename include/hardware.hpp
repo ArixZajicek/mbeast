@@ -3,58 +3,26 @@
 
 #include <inttypes.h>
 #include <SDL2/SDL.h>
-#include "led-matrix-c.h"
-
-/**** UNIVERSAL STRUCTS ****/
-
-struct Vector3 {
-  double x;
-  double y;
-  double z;
-};
-
-struct Vector2 {
-  double x;
-  double y;
-};
-
-///////////////////
-/**** CLASSES ****/
-///////////////////
+#include "types.hpp"
+#include "graphics.hpp"
 
 class Serial {
 public:
   const double TIMEOUT_DURATION = 0.5;
 
-  enum Status {
-    QUEUED = 99,
-    AWAITING_OK = 100,
-    SENDING = 110,
-    AWAITING_RESPONSE = 198,
-    RECEIVING_RESPONSE = 199,
-    RESPONSE_RECEIVED = 200,
-    ERROR = 400,
-    NOT_FOUND = 404,
-  };
-
-  struct Payload {
-    uint16_t length;
-    void *body;
-  };
-
   Serial(const char *dev);
   ~Serial();
-  
+
   void tick(double delta);
   uint32_t sendMessage(void *data, uint16_t len);
-  Status getStatus(uint32_t id);
-  Payload getResponse(uint32_t id);
+  SerialStatus getStatus(uint32_t id);
+  SerialPayload getResponse(uint32_t id);
 
 private:
   struct Message {
     uint32_t id;
-    Status status;
-    Payload request, response;
+    SerialStatus status;
+    SerialPayload request, response;
     Message *next;
     uint16_t bytesRead;
     double emptyDuration;
@@ -99,42 +67,16 @@ private:
 
 class Output {
 public:
-  struct Ears {
-    double leftRoll;
-    double leftPitch;
-    double rightRoll;
-    double rightPitch;
-  };
+  Output(Serial *serial, Window *window);
+  void send(OutputState &state);
 
-  struct State {
-    Color *visor;
-    Color *strips;
-    Ears *ears;
-  };
-
-  Output(Serial *serial);
-  void send(State &state);
 private:
   Serial *serial;
 };
 
 class Input {
 public:
-  enum Key {
-    UP, DOWN, LEFT, RIGHT, ACTION, BACK, BOOP, __COUNT
-  };
-
-  typedef bool Keys[Key::__COUNT];
-
-  struct State {
-    Keys keysDown;
-    Keys keysTyped;
-
-    Vector2 analog;
-    Vector3 motion;
-  };
-
-  Input(Serial *serial);
+  Input(Serial *serial, Window *window);
 
   // We can't assume reading input will be faster than a frame. We just let this
   // abstract away any logic for that under the hood, call tick() once per frame,
@@ -142,19 +84,23 @@ public:
   // can at least be sure it's valid (note that keysTyped still gets updated
   // regardless of if the data is new or not)
   void tick();
-  State getResult();
+  InputState getResult();
 
 private:
   uint32_t msg;
-  State state;
-  Keys typed;
+  InputState state;
+  InputKeys typed;
 
   Serial *serial;
+  Window *window;
 
   const char msgReq = 'i';
   struct RawResponse {
     uint8_t acc_x, acc_y, acc_z, stick_x, stick_y, buttons;
   };
+
+  void serialInputTick();
+  void sdlInputTick();
 };
 
 #endif

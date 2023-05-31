@@ -11,11 +11,12 @@ namespace State {
 
   }
 
-  void Initial::tick(Input::State input, double d, Action next) {
-    std::cout << "Ticking initial with time delta " << d << std::endl;
+  void Initial::tick(InputState input, double d, Action &next) {
+    //std::cout << "Ticking initial with time delta " << d << std::endl;
+    if (input.keysDown[InputKey::BACK]) next.type = EXIT;
   }
 
-  void Initial::draw(Output::State &out) {
+  void Initial::draw(OutputState &out) {
 
   }
 

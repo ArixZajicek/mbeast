@@ -3,13 +3,13 @@ CC=g++
 
 # Important directories, relative to this Makefile
 SRCDIR=src
-INCDIR=src
+INCDIR=include
 BUILDDIR=build
 OBJDIR=$(BUILDDIR)/obj
 DEPDIR=$(BUILDDIR)/dep
 
 # Main Target object/name
-TARGET=$(BUILDDIR)/beast
+TARGET=$(BUILDDIR)/mbeast
 
 # Raspberry Pi name and paths
 RPI_RGB_LIB_NAME=rgbmatrix
@@ -50,4 +50,7 @@ $(DEPS): $(RPI_RGB_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp))
 .PHONY: clean
 clean:
 	rm -fr $(BUILDDIR)
+
+.PHONY: cleanrpi
+cleanrpi:
 	$(MAKE) -C $(RPI_RGB_LIB_DIR)/lib clean

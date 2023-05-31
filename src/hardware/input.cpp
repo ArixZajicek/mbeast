@@ -1,28 +1,29 @@
 #include "hardware.hpp"
+#include "debug.hpp"
 
 #include <malloc.h>
 #include <iostream>
 
-Input::Input(Serial *s) {
+Input::Input(Serial *s, Window *w) {
   serial = s;
   msg = 0;
   state = {};
-  for (int k = 0; k < Key::__COUNT; k++) {
+  for (int k = 0; k < InputKey::__COUNT; k++) {
     typed[k] = false;
   }
 }
 
 void Input::tick() {
-  Keys newKeysDown;
-  for (int k = 0; k < Key::__COUNT; k++) {
+  InputKeys newKeysDown;
+  for (int k = 0; k < InputKey::__COUNT; k++) {
     newKeysDown[k] = state.keysDown[k];
   }
 
   // If we have an active message, see if it's ready
   if (msg != 0) {
-    Serial::Status status = serial->getStatus(msg);
-    if (status == Serial::Status::RESPONSE_RECEIVED) {
-      Serial::Payload resp = serial->getResponse(msg);
+    SerialStatus status = serial->getStatus(msg);
+    if (status == SerialStatus::RESPONSE_RECEIVED) {
+      SerialPayload resp = serial->getResponse(msg);
       if (resp.length == sizeof(RawResponse)) {
         RawResponse *raw = (RawResponse *)resp.body;
         newKeysDown[UP] = raw->buttons | (1 << UP);
@@ -38,11 +39,10 @@ void Input::tick() {
         state.motion.y = (raw->acc_y / 127.5) - 127.5;
         state.motion.z = (raw->acc_z / 127.5) - 127.5;
       } else {
-        std::cerr << "Response format error: Expected length " << std::to_string(sizeof(RawResponse)) << " but got length " << std::to_string(resp.length) << std::endl;
-        exit(-1);
+        ABORT("Response format error: Expected length %lu but got length %d", sizeof(RawResponse), resp.length);
       }
       msg = 0;
-    } else if (status == Serial::Status::ERROR || status == Serial::Status::NOT_FOUND) {
+    } else if (status == SerialStatus::ERROR || status == SerialStatus::NOT_FOUND) {
       msg = 0;
     }
   }
@@ -52,15 +52,15 @@ void Input::tick() {
   }
 
   // This will only set KeysTyped if there's something new, but never clear it
-  for (int k = 0; k < Key::__COUNT; k++) {
+  for (int k = 0; k < InputKey::__COUNT; k++) {
     typed[k] |= !state.keysDown[k] && newKeysDown[k];
     state.keysDown[k] = newKeysDown[k];
   }
 }
 
-Input::State Input::getResult() {
+InputState Input::getResult() {
   // Update keys typed
-  for (int k = 0; k < Key::__COUNT; k++) {
+  for (int k = 0; k < InputKey::__COUNT; k++) {
     state.keysTyped[k] = typed[k];
     typed[k] = false;
   }

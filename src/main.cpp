@@ -1,42 +1,62 @@
 #include <iostream>
 #include <chrono>
 #include <cstring>
-#include "state/states.hpp"
-#include "hardware/hardware.hpp"
+#include "config.hpp"
+#include "debug.hpp"
+#include "states.hpp"
+#include "hardware.hpp"
 
-void loop();
-void init();
-void cleanup();
 
 // Context stack
-State::Context *stack = nullptr;
+  State::Context *stack = nullptr;
 
-int main(int argc, char **argv) {
-  init();
-  loop();
-  cleanup();
+  // Hardware devices
+  Serial *serial = nullptr;
+  Window *window = nullptr;
+
+  Input *input = nullptr;
+  Output *output = nullptr;
+
+int init() {
+  LOG("Initializing objects");
+
+  window = new Window(800, 600);
+  LOG("Window created");
+
+  input = new Input(serial, window);
+  output = new Output(serial, window);
+
+  State::Context initialContext;
+
+  stack = new State::Context();
+  stack->state = new State::Initial(stack);
+
+  LOG("Initialization complete");
+  return 0;
 }
 
-void loop() {
+int loop() {
   auto lastClock = std::chrono::steady_clock::now();
   auto curClock = lastClock;
 
-  Serial serial("/dev/ttyUSB0");
-
-  Input input(&serial);
-  Output output(&serial);
+  LOG("Beginning main loop");
 
   while (stack != nullptr) {
-
     lastClock = curClock;
     curClock = std::chrono::steady_clock::now();
     double delta = (curClock - lastClock).count() / 1000000000.0;
 
-    input.tick();
-    serial.tick(delta);
+    // Tick main things
+    window->tick(delta);
 
     State::Action action = { State::ActionType::NOP, nullptr };
-    stack->state->tick(input.getResult(), delta, action);
+    if (serial != nullptr) {
+      input->tick();
+      serial->tick(delta) ;
+      stack->state->tick(input->getResult(), delta, action);
+    } else {
+      stack->state->tick(window->getInputState(), delta, action);
+    }
 
     switch (action.type) {
     case State::ActionType::ENTER:
@@ -56,10 +76,41 @@ void loop() {
       break;
     }
   }
+
+  LOG("Exiting loop");
+  return 0;
 }
 
-void init() {
-  // Initialize SDL, hub75 lib, devices, etc.
+int cleanup() {
+  LOG("Deleting remaining objects"); 
+
+  delete output;
+  delete input;
+  delete window;
+  delete serial;
+
+  LOG("Cleanup complete");
+  
+  return 0;
 }
 
-void cleanup() {}
+int main(int argc, char **argv) {
+
+  LOG("Starting mbeast");
+
+  int argInit = Cfg.init(argc, argv);
+  if (argInit == 1) {
+    return 0;
+  } else if (argInit != 0) {
+    return argInit;
+  }
+
+  LOG("Args parsed");
+
+  init();
+  loop();
+  cleanup();
+
+  LOG("Safely quitting application");
+  return 0;
+}
