@@ -4,8 +4,7 @@
 #include <malloc.h>
 #include <iostream>
 
-Input::Input(Serial *s, Window *w) {
-  serial = s;
+Input::Input(Serial &s) : serial(s) {
   msg = 0;
   state = {};
   for (int k = 0; k < InputKey::__COUNT; k++) {
@@ -21,9 +20,9 @@ void Input::tick() {
 
   // If we have an active message, see if it's ready
   if (msg != 0) {
-    SerialStatus status = serial->getStatus(msg);
+    SerialStatus status = serial.getStatus(msg);
     if (status == SerialStatus::RESPONSE_RECEIVED) {
-      SerialPayload resp = serial->getResponse(msg);
+      SerialPayload resp = serial.getResponse(msg);
       if (resp.length == sizeof(RawResponse)) {
         RawResponse *raw = (RawResponse *)resp.body;
         newKeysDown[UP] = raw->buttons | (1 << UP);
@@ -48,7 +47,7 @@ void Input::tick() {
   }
 
   if (msg == 0) {
-    msg = serial->sendMessage((void *)&msgReq, 1);
+    msg = serial.sendMessage((void *)&msgReq, 1);
   }
 
   // This will only set KeysTyped if there's something new, but never clear it

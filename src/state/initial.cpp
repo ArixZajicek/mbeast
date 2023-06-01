@@ -3,7 +3,7 @@
 #include "states.hpp"
 
 namespace State {
-  Initial::Initial(Context *ctx) : IState(ctx) {
+  Initial::Initial(const Context &ctx) : IState(ctx) {
     // Process initial data
   }
 
@@ -11,7 +11,7 @@ namespace State {
 
   }
 
-  void Initial::tick(InputState input, double d, Action &next) {
+  void Initial::tick(const InputState &input, double d, Action &next) {
     //std::cout << "Ticking initial with time delta " << d << std::endl;
     if (input.keysDown[InputKey::BACK]) next.type = EXIT;
   }

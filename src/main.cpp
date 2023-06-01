@@ -6,36 +6,28 @@
 #include "states.hpp"
 #include "hardware.hpp"
 
-
-// Context stack
-  State::Context *stack = nullptr;
+int run(const Config &cfg) {
+  LOG("Initializing objects");
 
   // Hardware devices
   Serial *serial = nullptr;
-  Window *window = nullptr;
+  Window *window = new Window(800, 600);
 
-  Input *input = nullptr;
-  Output *output = nullptr;
+  if (cfg.isSerialEnabled()) {
+    serial = new Serial("/dev/ttyUSB0");
+  }
 
-int init() {
-  LOG("Initializing objects");
-
-  window = new Window(800, 600);
   LOG("Window created");
 
-  input = new Input(serial, window);
-  output = new Output(serial, window);
+  Input input(*serial);
+  Output output(*serial, *window);
 
-  State::Context initialContext;
-
-  stack = new State::Context();
-  stack->state = new State::Initial(stack);
+  // Context stack
+  State::Context *stack = new State::Context();
+  stack->state = new State::Initial(*stack);
 
   LOG("Initialization complete");
-  return 0;
-}
 
-int loop() {
   auto lastClock = std::chrono::steady_clock::now();
   auto curClock = lastClock;
 
@@ -51,13 +43,14 @@ int loop() {
 
     State::Action action = { State::ActionType::NOP, nullptr };
     if (serial != nullptr) {
-      input->tick();
+      input.tick();
       serial->tick(delta) ;
-      stack->state->tick(input->getResult(), delta, action);
+      stack->state->tick(input.getResult(), delta, action);
     } else {
       stack->state->tick(window->getInputState(), delta, action);
     }
 
+    State::Context *temp = nullptr;
     switch (action.type) {
     case State::ActionType::ENTER:
       action.context->parent = stack;
@@ -66,7 +59,10 @@ int loop() {
       break;
     case State::ActionType::EXIT:
       stack->state->exit();
-      stack = stack->parent;
+      temp = stack;
+      stack = temp->parent;
+      delete temp->state;
+      delete temp;
       break;
     case State::ActionType::SWAP:
       stack->state->exit();
@@ -77,20 +73,12 @@ int loop() {
     }
   }
 
-  LOG("Exiting loop");
-  return 0;
-}
+  LOG("Freeing hardware objects");
 
-int cleanup() {
-  LOG("Deleting remaining objects"); 
-
-  delete output;
-  delete input;
-  delete window;
   delete serial;
+  delete window;
 
-  LOG("Cleanup complete");
-  
+  LOG("Exiting loop");
   return 0;
 }
 
@@ -98,7 +86,9 @@ int main(int argc, char **argv) {
 
   LOG("Starting mbeast");
 
-  int argInit = Cfg.init(argc, argv);
+  Config cfg(argc, argv);
+
+  int argInit = cfg.getInitSuccess();
   if (argInit == 1) {
     return 0;
   } else if (argInit != 0) {
@@ -107,9 +97,7 @@ int main(int argc, char **argv) {
 
   LOG("Args parsed");
 
-  init();
-  loop();
-  cleanup();
+  run(cfg);
 
   LOG("Safely quitting application");
   return 0;

@@ -14,14 +14,16 @@ static void printHelp() {
   std::cout << "  -S, --no-serial                 Disable all serial communication" << std::endl;
 }
 
-int ConfigObj::init(int argc, char **args) {
+Config::Config(int argc, char **args) {
+  LOG("Config object initializing");
   debug = false;
   serialEnabled = true;
 
   for (int i = 1; i < argc; i++) {
     if (strlen(args[i]) < 2) {
       printf("Unknown argument '%s'\n", args[i]);
-      return -1;
+      retVal = -1;
+      return;
     }
 
     if (args[i][0] == '-') {
@@ -30,14 +32,16 @@ int ConfigObj::init(int argc, char **args) {
         char *arg = args[i] + 2;
         if (strcmp(arg, "help") == 0) {
           printHelp();
-          return 1;
+          retVal = 1;
+          return;
         } else if (strcmp(arg, "debug") == 0) {
           debug = true;
         }if (strcmp(arg, "no-serial") == 0) {
           serialEnabled = false;
         } else {
           printf("Unknown argument '%s'\n", args[i]);
-          return -1;
+          retVal = -1;
+          return;
         }
 
       } else {
@@ -46,8 +50,8 @@ int ConfigObj::init(int argc, char **args) {
           switch (*c) {
           case 'h':
             printHelp();
-            return 1;
-            break;
+            retVal = 1;
+            return;
           case 'd':
             debug = true;
             break;
@@ -56,18 +60,26 @@ int ConfigObj::init(int argc, char **args) {
             break;
           default:
             printf("Unknown argument '-%c'\n", *c);
-            return -1;
+            retVal = -1;
+            return;
           }
         }
       }
     } else {
       printf("Unknown argument '%s'\n", args[i]);
-      return -1;
+      retVal = -1;
+      return;
     }
   }
 
-  return 0;
+  retVal = 0;
 }
 
-bool ConfigObj::isDebug() { return debug; }
-bool ConfigObj::isSerialEnabled() { return serialEnabled; }
+Config::~Config() {
+  LOG("Config object exiting");
+}
+
+bool Config::isDebug() const { return debug; }
+bool Config::isSerialEnabled() const { return serialEnabled; }
+
+int Config::getInitSuccess() const { return retVal; }

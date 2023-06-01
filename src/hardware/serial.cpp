@@ -141,7 +141,7 @@ uint32_t Serial::sendMessage(void *data, uint16_t len) {
   return msg->id;
 }
 
-SerialStatus Serial::getStatus(uint32_t id) {
+SerialStatus Serial::getStatus(uint32_t id) const {
   Message *cur = list;
   while (cur->id != id && cur->next != nullptr) cur = cur->next;
 

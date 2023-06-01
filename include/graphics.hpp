@@ -7,12 +7,14 @@
 class Window {
 public:
   Window(int w, int h);
-  void tick(double delta);
-  const SDL_Surface *getBackBuffer();
-  void draw(Color *pixels, int x, int y, int w, int h);
-  void flip();
-  InputState getInputState();
   ~Window();
+
+  void tick(double delta);
+  InputState getInputState();
+  void flip();
+
+  const SDL_Surface *getBackBuffer() const;
+  void draw(Color *pixels, int x, int y, int w, int h) const;
 
 private:
   SDL_Window *window;

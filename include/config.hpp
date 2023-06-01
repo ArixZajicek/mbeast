@@ -3,18 +3,20 @@
 
 #include <iostream>
 
-class ConfigObj {
+class Config {
 public:
-  int init(int argc, char **argv);
+  Config(int argc, char **argv);
+  ~Config();
 
-  bool isDebug();
-  bool isSerialEnabled();
+  bool isDebug() const;
+  bool isSerialEnabled() const;
 
+  int getInitSuccess() const;
 private:
   bool debug;
   bool serialEnabled;
+  
+  int retVal;
 };
-
-static ConfigObj Cfg;
 
 #endif

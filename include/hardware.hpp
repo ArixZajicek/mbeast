@@ -14,8 +14,9 @@ public:
   ~Serial();
 
   void tick(double delta);
+  
   uint32_t sendMessage(void *data, uint16_t len);
-  SerialStatus getStatus(uint32_t id);
+  SerialStatus getStatus(uint32_t id) const;
   SerialPayload getResponse(uint32_t id);
 
 private:
@@ -42,9 +43,10 @@ public:
   const int HEIGHT = 64;
 
   Visor();
+  ~Visor();
+
   void draw(Color *pixel);
   void flip();
-  ~Visor();
 
 private:
   // Flags
@@ -67,16 +69,18 @@ private:
 
 class Output {
 public:
-  Output(Serial *serial, Window *window);
-  void send(OutputState &state);
+  Output(const Serial &serial, const Window &window);
+  
+  void send(OutputState &state) const;
 
 private:
-  Serial *serial;
+  const Serial &serial;
+  const Window &window;
 };
 
 class Input {
 public:
-  Input(Serial *serial, Window *window);
+  Input(Serial &serial);
 
   // We can't assume reading input will be faster than a frame. We just let this
   // abstract away any logic for that under the hood, call tick() once per frame,
@@ -91,16 +95,12 @@ private:
   InputState state;
   InputKeys typed;
 
-  Serial *serial;
-  Window *window;
+  Serial &serial;
 
   const char msgReq = 'i';
   struct RawResponse {
     uint8_t acc_x, acc_y, acc_z, stick_x, stick_y, buttons;
   };
-
-  void serialInputTick();
-  void sdlInputTick();
 };
 
 #endif

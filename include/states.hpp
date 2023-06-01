@@ -31,15 +31,12 @@ namespace State {
 
   class IState {
   protected:
-    Context *context;
+    const Context &ctx;
 
   public:
-    IState(Context *context) {
-      this->context = context;
-      this->context->state = this;
-    }
+    IState(const Context &context) : ctx(context) {}
 
-    virtual void tick(InputState input, double delta, State::Action &next) = 0;
+    virtual void tick(const InputState &input, double delta, State::Action &next) = 0;
 
     virtual void enter() {};
     virtual void draw(OutputState &output) {};
@@ -52,9 +49,9 @@ namespace State {
 
   class Initial : public IState {
   public:
-    Initial(Context *ctx);
+    Initial(const Context &ctx);
     void enter();
-    void tick(InputState, double, State::Action &) override;
+    void tick(const InputState &, double, State::Action &);
     void draw(OutputState &);
     void exit();
   };

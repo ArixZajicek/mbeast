@@ -19,7 +19,7 @@ RPI_RGB_LIB_FULLPATH=$(RPI_RGB_LIB_DIR)/lib/lib$(RPI_RGB_LIB_NAME).a
 # Compile flags
 CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -lpthread -lrt -lm -lpthread
 CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(INCDIR)
-CFLAGS=$(CINCLUDES) -fno-exceptions -std=c++11
+CFLAGS=$(CINCLUDES) -g -fno-exceptions -std=c++11
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp)

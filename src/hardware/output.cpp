@@ -1,10 +1,9 @@
 #include "hardware.hpp"
 
-Output::Output(Serial *s, Window *w) {
+Output::Output(const Serial &s, const Window &w) : serial(s), window(w) {
   // do
-  serial = s;
 }
 
-void Output::send(OutputState &state) {
+void Output::send(OutputState &state) const {
 
 }
