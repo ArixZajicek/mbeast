@@ -1,7 +1,6 @@
-
-# lib temporary files
-lib/temp
-lib/ext
+/build
+/mbeast
+/lib/rip_rgb_led_matrix
 
 # Built files
 *.so
