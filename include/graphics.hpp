@@ -13,7 +13,7 @@ public:
   InputState getInputState();
   void flip();
 
-  const SDL_Surface *getBackBuffer() const;
+  SDL_Surface *getBackBuffer() const;
   void draw(Color *pixels, int x, int y, int w, int h) const;
 
 private:

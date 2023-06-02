@@ -81,7 +81,7 @@ void Window::tick(double delta) {
 }
 
 /* For more involved draw operations */
-const SDL_Surface *Window::getBackBuffer() const {
+SDL_Surface *Window::getBackBuffer() const {
   return windowSurface;
 }
 
@@ -89,9 +89,9 @@ const SDL_Surface *Window::getBackBuffer() const {
 void Window::draw(Color *pixels, int x, int y, int w, int h) const {
   SDL_Surface *temp = SDL_CreateRGBSurfaceFrom(
     pixels,
-    width, height,
+    w, h,
     24,
-    3 * width,
+    3 * w,
     0xFF, 0xFF00, 0xFF0000, 0x00
   );
 
@@ -99,12 +99,12 @@ void Window::draw(Color *pixels, int x, int y, int w, int h) const {
     x, y, w, h
   };
 
-  SDL_BlitSurface(temp, NULL, bufferSurface, &rect);
+  SDL_BlitSurface(temp, NULL, windowSurface, &rect);
   SDL_FreeSurface(temp);
 }
 
 void Window::flip() {
-  SDL_BlitSurface(bufferSurface, nullptr, windowSurface, nullptr);
+  //SDL_BlitSurface(bufferSurface, nullptr, windowSurface, nullptr);
   SDL_UpdateWindowSurface(window);
 }
 
@@ -115,7 +115,7 @@ InputState Window::getInputState() {
 Window::~Window() {
   LOG("Freeing window surface");
 
-  SDL_FreeSurface(bufferSurface);
+  //SDL_FreeSurface(bufferSurface);
   SDL_DestroyWindow(window);
   SDL_Quit();
 

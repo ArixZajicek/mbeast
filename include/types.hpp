@@ -61,7 +61,7 @@ struct Ears {
 struct OutputState {
   Color *visor;
   Color *strips;
-  Ears *ears;
+  Ears ears;
 };
 
 #endif

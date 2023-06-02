@@ -10,11 +10,15 @@ public:
 
   bool isDebug() const;
   bool isSerialEnabled() const;
+  const char* getSerialDevice() const;
+  int getFPS() const;
 
   int getInitSuccess() const;
 private:
   bool debug;
   bool serialEnabled;
+  const char *serialDevice;
+  int fps;
   
   int retVal;
 };

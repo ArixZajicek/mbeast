@@ -39,8 +39,8 @@ private:
 
 class Visor {
 public:
-  const int WIDTH = 256;
-  const int HEIGHT = 64;
+  static const int WIDTH = 256;
+  static const int HEIGHT = 64;
 
   Visor();
   ~Visor();
