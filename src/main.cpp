@@ -28,8 +28,8 @@ int run(const Config &cfg) {
   Output output(*serial, *window);
 
   // Context stack
-  State::Context *stack = new State::Context();
-  stack->state = new State::Initial(*stack);
+  State::StateContext *ctxStack = new State::StateContext();
+  ctxStack->state = new State::Initial(*ctxStack);
 
   // We'll only use a single output state here
   OutputState outState = {
@@ -44,22 +44,22 @@ int run(const Config &cfg) {
 
   LOG("Beginning main loop");
 
-  while (stack != nullptr) {
+  while (ctxStack != nullptr) {
     double lastFrameDelta = (frameEnd - frameStart).count() / 1000000000.0;
     frameStart = std::chrono::steady_clock::now();
 
     // Tick main things
     window->tick(lastFrameDelta);
 
-    State::Action action = { State::ActionType::NOP, nullptr };
+    State::StateContext *nextCtx = ctxStack;
     if (serial != nullptr) {
       input.tick();
       serial->tick(lastFrameDelta) ;
-      stack->state->tick(input.getResult(), lastFrameDelta, action);
+      ctxStack->state->tick(input.getResult(), lastFrameDelta, nextCtx);
     } else {
-      stack->state->tick(window->getInputState(), lastFrameDelta, action);
+      ctxStack->state->tick(window->getInputState(), lastFrameDelta, nextCtx);
     }
-    stack->state->draw(outState);
+    ctxStack->state->draw(outState);
 
     SDL_Surface *tempSurface = SDL_CreateRGBSurfaceFrom(
       outState.visor,
@@ -76,26 +76,24 @@ int run(const Config &cfg) {
     SDL_FreeSurface(tempSurface);
     window->flip();
 
-    State::Context *temp = nullptr;
-    switch (action.type) {
-    case State::ActionType::ENTER:
-      action.context->parent = stack;
-      stack = action.context;
-      stack->state->enter();
-      break;
-    case State::ActionType::EXIT:
-      stack->state->exit();
-      temp = stack;
-      stack = temp->parent;
-      delete temp->state;
-      delete temp;
-      break;
-    case State::ActionType::SWAP:
-      stack->state->exit();
-      action.context->parent = stack;
-      stack = action.context;
-      stack->state->enter();
-      break;
+    State::StateContext *temp = nullptr;
+    if (nextCtx != ctxStack) {
+      if (nextCtx->parent == ctxStack) {
+        // ENTER NEW CONTEXT
+        LOG("Entering new context");
+        ctxStack = nextCtx;
+        ctxStack->state->enter(false);
+      } else if (ctxStack->parent == nextCtx) {
+        // EXIT CURRENT CONTEXT
+        LOG("Exiting current context");
+        ctxStack->state->exit();
+        delete ctxStack->state;
+        delete ctxStack;
+        ctxStack = nextCtx;
+        ctxStack->state->enter(true);
+      } else {
+         ABORT("Invalid next context returned. Unable to continue.");
+      }
     }
 
     double actualFrameTime = (std::chrono::steady_clock::now() - frameStart).count() / 1000000000.0;

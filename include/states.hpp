@@ -8,21 +8,9 @@ namespace State {
   // Forward declarations:
   class IState;
 
-  enum ActionType {
-    NOP,
-    ENTER,
-    EXIT,
-    SWAP,
-  };
-
-  struct Context {
-    Context *parent;
+  struct StateContext {
+    StateContext *parent;
     IState *state;
-  };
-
-  struct Action {
-    ActionType type;
-    Context *context;
   };
 
   struct RenderContext {
@@ -31,14 +19,14 @@ namespace State {
 
   class IState {
   protected:
-    const Context &ctx;
+    StateContext &ctx;
 
   public:
-    IState(const Context &context) : ctx(context) {}
+    IState(StateContext &context) : ctx(context) {}
 
-    virtual void tick(const InputState &input, double delta, State::Action &next) = 0;
+    virtual void tick(const InputState &input, double delta, StateContext *&nextCtx) = 0;
 
-    virtual void enter() {};
+    virtual void enter(bool resume) {};
     virtual void draw(OutputState &output) {};
     virtual void exit() {};
   };
@@ -49,9 +37,18 @@ namespace State {
 
   class Initial : public IState {
   public:
-    Initial(const Context &ctx);
-    void enter();
-    void tick(const InputState &, double, State::Action &);
+    Initial(StateContext &ctx);
+    void enter(bool);
+    void tick(const InputState &, double, StateContext *&);
+    void draw(OutputState &);
+    void exit();
+  };
+
+  class Neutral : public IState {
+  public:
+    Neutral(StateContext &ctx);
+    void enter(bool);
+    void tick(const InputState &, double, StateContext *&);
     void draw(OutputState &);
     void exit();
   };
