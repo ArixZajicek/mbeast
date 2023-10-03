@@ -2,6 +2,7 @@
 #include <memory.h>
 #include "states.hpp"
 #include "debug.hpp"
+#include "include/core/SkColor.h"
 
 namespace State {
   Initial::Initial(StateContext &ctx) : IState(ctx) {
@@ -26,7 +27,7 @@ namespace State {
   void Initial::draw(OutputState &out) {
     static uint8_t r = 255, g = 0, b = 0;
     static int i = 0;
-    out.visor[i] = {r, g, b};
+    out.rawPix[i] = SkColorSetRGB(r, g, b);
 
     if (r == 255 && b == 0 && g < 255) {
       g++;

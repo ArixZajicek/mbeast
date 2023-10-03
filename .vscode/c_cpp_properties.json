@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/lib/rpi_rgb_led_matrix/include",
+                "${workspaceFolder}/lib/skia",
                 "/usr/include/SDL2"
             ],
             "defines": [],

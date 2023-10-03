@@ -6,6 +6,13 @@
 #include "states.hpp"
 #include "hardware.hpp"
 
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+
+#include <vector>
+
 int run(const Config &cfg) {
   LOG("Initializing objects");
 
@@ -32,8 +39,14 @@ int run(const Config &cfg) {
   ctxStack->state = new State::Initial(*ctxStack);
 
   // We'll only use a single output state here
+  SkImageInfo info = SkImageInfo::MakeN32Premul(Visor::WIDTH, Visor::HEIGHT);
+  void *rawData = malloc(Visor::WIDTH * Visor::HEIGHT * sizeof(SkColor));
+  sk_sp<SkSurface> rasterSurface = SkSurfaces::WrapPixels(info, rawData, Visor::WIDTH * sizeof(SkColor)); //SkSurfaces::Raster(info);
+  SkCanvas* canvas = rasterSurface->getCanvas();
+  
   OutputState outState = {
-    visor: (Color *)malloc(Visor::WIDTH * Visor::HEIGHT * sizeof(Color)),
+    cvs: canvas,
+    rawPix: (SkColor *)rawData,
     ears: {0, 0, 0, 0},
   };
 
@@ -62,11 +75,11 @@ int run(const Config &cfg) {
     ctxStack->state->draw(outState);
 
     SDL_Surface *tempSurface = SDL_CreateRGBSurfaceFrom(
-      outState.visor,
+      outState.rawPix,
       Visor::WIDTH, Visor::HEIGHT,
-      24,
-      3 * Visor::WIDTH,
-      0xFF, 0xFF00, 0xFF0000, 0x00
+      32, //24,
+      Visor::WIDTH * sizeof(SkColor), //3 * Visor::WIDTH,
+      0xFF0000, 0xFF00, 0xFF, 0xFF000000
     );
 
     SDL_Rect targetRect = {0, 0, Visor::WIDTH * 6, Visor::HEIGHT * 6};
@@ -107,7 +120,8 @@ int run(const Config &cfg) {
 
   delete serial;
   delete window;
-  delete outState.visor;
+  delete outState.rawPix;
+  delete outState.cvs;
 
   LOG("Exiting loop");
   return 0;

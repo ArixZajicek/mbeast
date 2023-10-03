@@ -1,6 +1,7 @@
 /build
 /mbeast
 /lib/rip_rgb_led_matrix
+/lib/skia
 
 # Built files
 *.so

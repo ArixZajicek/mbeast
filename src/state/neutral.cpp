@@ -1,6 +1,8 @@
 #include <iostream>
 #include <memory.h>
+#include <cmath>
 #include "states.hpp"
+#include "include/core/SkCanvas.h"
 
 namespace State {
   Neutral::Neutral(StateContext &ctx) : IState(ctx) {
@@ -17,25 +19,25 @@ namespace State {
   }
 
   void Neutral::draw(OutputState &out) {
-    static uint8_t r = 255, g = 0, b = 0;
-    static int i = 0;
-    out.visor[i] = {255, 255, 255};
+    static float deg = 0;
 
-    if (r == 255 && b == 0 && g < 255) {
-      g++;
-    } else if (g == 255 && r > 0) {
-      r--;
-    } else if (g == 255 && b < 255) {
-      b++;
-    } else if (b == 255 && g > 0) {
-      g--;
-    } else if (b == 255 && r < 255) {
-      r++;
-    } else if (r == 255 && b > 0) {
-      b--;
-    }
+    SkRect rect = SkRect::MakeXYWH(112, 16, 32, 32);
 
-    i = i + 1 % (Visor::WIDTH * Visor::HEIGHT);
+    SkPaint p;
+    p.setAntiAlias(false);
+    p.setColor(SK_ColorWHITE);
+    p.setStyle(SkPaint::kStrokeAndFill_Style);
+    p.setStrokeWidth(2);
+    out.cvs->drawRect(rect, p);
+
+    p.setColor(SK_ColorRED);
+    p.setStyle(SkPaint::kStroke_Style);
+    out.cvs->drawArc(rect, deg, 90, false, p);
+    //out.cvs->drawLine(8, 8, 56, 56, p);
+
+
+    deg = deg + (360 / 60);
+    if (deg >= 360) deg -= 360;
   }
 
   void Neutral::exit() {

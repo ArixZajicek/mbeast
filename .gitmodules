@@ -1,3 +1,6 @@
 [submodule "lib/rpi_rgb_led_matrix"]
 	path = lib/rpi_rgb_led_matrix
 	url = https://github.com/hzeller/rpi-rgb-led-matrix.git
+[submodule "lib/skia"]
+	path = lib/skia
+	url = https://skia.googlesource.com/skia.git

@@ -11,15 +11,22 @@ DEPDIR=$(BUILDDIR)/dep
 # Main Target object/name
 TARGET=$(BUILDDIR)/mbeast
 
+
 # Raspberry Pi name and paths
 RPI_RGB_LIB_NAME=rgbmatrix
 RPI_RGB_LIB_DIR=lib/rpi_rgb_led_matrix
 RPI_RGB_LIB_FULLPATH=$(RPI_RGB_LIB_DIR)/lib/lib$(RPI_RGB_LIB_NAME).a
 
+# Skia
+SKIA_LIB_NAME=skia
+SKIA_LIB_DIR=lib/skia
+SKIA_SUB_DIR=out/Shared
+SKIA_LIB_FULLPATH=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)/libskia.so
+
 # Compile flags
-CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -lpthread -lrt -lm -lpthread
-CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(INCDIR)
-CFLAGS=$(CINCLUDES) -g -fno-exceptions -std=c++11
+CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) -l$(SKIA_LIB_NAME) -lGL -lpthread -lrt -lm -lpthread
+CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(SKIA_LIB_DIR) -I$(INCDIR)
+CFLAGS=$(CINCLUDES) -g -fno-exceptions -std=c++17 -Wl,-rpath=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp)
@@ -27,7 +34,7 @@ OBJS=$(subst $(SRCDIR),$(OBJDIR),$(SRCS:.cpp=.o))
 DEPS=$(subst $(SRCDIR),$(DEPDIR),$(SRCS:.cpp=.d))
 
 # Main output
-$(TARGET): $(RPI_RGB_LIB_FULLPATH) $(OBJS)
+$(TARGET): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
 	@echo Building final target $(TARGET)...
 	@$(CC) -o $@ $^ $(CLIBS) $(CFLAGS)
 	@echo Done.
@@ -36,8 +43,14 @@ $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(OBJS)
 $(RPI_RGB_LIB_FULLPATH): 
 	$(MAKE) -C $(RPI_RGB_LIB_DIR)/lib
 
+#Skia (requires Chromium build_depot to be set up and in the path)
+$(SKIA_LIB_FULLPATH):
+	cd $(SKIA_LIB_DIR)
+	bin/gn gen $(SKIA_SUB_DIR) --args='is_official_build=true is_component_build=true cc="clang" cxx="clang++" skia_pdf_subset_harfbuzz=false skia_enable_fontmgr_empty=true'
+	ninja -C $(SKIA_SUB_DIR)
+
 # Intermediate dependencies
-$(DEPS): $(RPI_RGB_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp))
+$(DEPS): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp))
 	@echo Generating dependency file '$@'...
 	@mkdir -p $(@D)
 	cpp $(CFLAGS) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp)) -MM -MT $(subst $(DEPDIR),$(OBJDIR),$(@:.d=.o)) > $@

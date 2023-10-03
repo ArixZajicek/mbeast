@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "led-matrix-c.h"
+#include "include/core/SkCanvas.h"
 
 /* ENUMERATIONS */
 
@@ -59,8 +60,9 @@ struct Ears {
 };
 
 struct OutputState {
-  Color *visor;
-  Color *strips;
+  SkCanvas *cvs;
+  SkColor *rawPix;
+  SkColor *strips;
   Ears ears;
 };
 
