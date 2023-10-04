@@ -45,8 +45,10 @@ $(RPI_RGB_LIB_FULLPATH):
 
 #Skia (requires Chromium build_depot to be set up and in the path)
 $(SKIA_LIB_FULLPATH):
-	cd $(SKIA_LIB_DIR)
-	bin/gn gen $(SKIA_SUB_DIR) --args='is_official_build=true is_component_build=true cc="clang" cxx="clang++" skia_pdf_subset_harfbuzz=false skia_enable_fontmgr_empty=true'
+	cd $(SKIA_LIB_DIR) && \
+	python3 tools/git-sync-deps && \
+	bin/fetch-ninja && \
+	bin/gn gen $(SKIA_SUB_DIR) --args='is_official_build=true is_component_build=true cc="clang" cxx="clang++" skia_pdf_subset_harfbuzz=false skia_enable_fontmgr_empty=true' && \
 	ninja -C $(SKIA_SUB_DIR)
 
 # Intermediate dependencies
