@@ -39,11 +39,14 @@ $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
 	@$(CC) -o $@ $^ $(CLIBS) $(CFLAGS)
 	@echo Done.
 
-# Raspberry Pi Lib
+# Raspberry Pi lib (statically linked)
 $(RPI_RGB_LIB_FULLPATH): 
 	$(MAKE) -C $(RPI_RGB_LIB_DIR)/lib
 
-#Skia (requires Chromium build_depot to be set up and in the path)
+# Skia lib (dynamically linked)
+# Requires clang and Chromium build_depot to be set up and in the path:
+# 	Clone build_depot from https://chromium.googlesource.com/chromium/tools/depot_tools.git
+# 	Add to path with export PATH="/path/to/build_depot:${PATH}" in .bashrc
 $(SKIA_LIB_FULLPATH):
 	cd $(SKIA_LIB_DIR) && \
 	python3 tools/git-sync-deps && \
