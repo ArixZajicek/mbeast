@@ -7,6 +7,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkFontMgr.h"
 #include "ui.hpp"
 
 namespace State {
@@ -54,24 +56,14 @@ namespace State {
       }
     }
 
-    colorProgress += 19;
+    colorProgress += 69;
     if (colorProgress >= Visor::WIDTH * Visor::HEIGHT) colorProgress -= 2 * Visor::WIDTH * Visor::HEIGHT;
 
-    Ui::spinner(out.cvs, SK_ColorWHITE);
+    Ui::spinner(out.cvs, SK_ColorWHITE, { 128, 26 });
 
-    SkPaint p;
-    p.setColor(SkColorSetRGB(255, 128, 0));
-
-    SkFont font;
-    font.setTypeface(SkTypeface::MakeFromName("Nimbus Sans", SkFontStyle::Bold()));
-    font.setSize(8);
-    out.cvs->drawString("Loading...", 4, 252, font, p);
-
-    //out.cvs->drawColor(SK_ColorWHITE);
-
-    SkPaint paint2;
-    auto text = SkTextBlob::MakeFromString("Hello, Skia!", SkFont(nullptr, 18));
-    out.cvs->drawTextBlob(text.get(), 50, 25, paint2);
+    char text[20] = "Loading";
+    strncat(text, "...", floor(Ui::period(0.75) * 4));
+    Ui::text(out.cvs, text, { 128, 50 }, 8, Ui::Justify::CENTER, SK_ColorCYAN);
   }
 
   void Initial::exit() {

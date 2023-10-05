@@ -79,7 +79,8 @@
     "future": "cpp",
     "shared_mutex": "cpp",
     "typeindex": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "*.inc": "cpp"
   },
   "C_Cpp.vcFormat.newLine.beforeCatch": false,
   "C_Cpp.vcFormat.newLine.beforeElse": false,

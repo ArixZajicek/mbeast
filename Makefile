@@ -47,11 +47,14 @@ $(RPI_RGB_LIB_FULLPATH):
 # Requires clang and Chromium build_depot to be set up and in the path:
 # 	Clone build_depot from https://chromium.googlesource.com/chromium/tools/depot_tools.git
 # 	Add to path with export PATH="/path/to/build_depot:${PATH}" in .bashrc
+#
+# REMOVED:
+#  skia_enable_fontmgr_empty=true
 $(SKIA_LIB_FULLPATH):
 	cd $(SKIA_LIB_DIR) && \
 	python3 tools/git-sync-deps && \
 	bin/fetch-ninja && \
-	bin/gn gen $(SKIA_SUB_DIR) --args='is_official_build=true is_component_build=true cc="clang" cxx="clang++" skia_pdf_subset_harfbuzz=false skia_enable_fontmgr_empty=true' && \
+	bin/gn gen $(SKIA_SUB_DIR) --args='is_official_build=true is_component_build=true cc="clang" cxx="clang++" skia_pdf_subset_harfbuzz=false' && \
 	ninja -C $(SKIA_SUB_DIR)
 
 # Intermediate dependencies
