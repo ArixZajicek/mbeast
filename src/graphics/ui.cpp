@@ -4,17 +4,20 @@
 namespace Ui {
   void spinner(
     SkCanvas *c,
-    const SkColor color
+    const SkColor color,
+    const SkPoint center,
+    const double radius,
+    const double sizeVariance
   ) {
-    static const int SIZE = 28, SIZEVAR = 8;
+    static const double diameter = radius * 2;
     static const double PER = 0.9;
     double tnorm = fmod(1.0 * std::chrono::steady_clock::now().time_since_epoch().count() / 1000000000.0, PER) / PER;
     double scalnorm = (1.0 + cos(tnorm * 2.0 * M_PI)) / 2;
     SkRect rect = SkRect::MakeXYWH(
-      128 - (SIZE + SIZEVAR * scalnorm) / 2,
-      32 - (SIZE + SIZEVAR * scalnorm) / 2,
-      SIZE + SIZEVAR * scalnorm,
-      SIZE + SIZEVAR * scalnorm);
+      center.fX - (diameter + sizeVariance * scalnorm) / 2,
+      center.fY - (diameter + sizeVariance * scalnorm) / 2,
+      diameter + sizeVariance * scalnorm,
+      diameter + sizeVariance * scalnorm);
 
     SkPaint p;
     p.setAntiAlias(false);

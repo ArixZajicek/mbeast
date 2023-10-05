@@ -4,6 +4,9 @@
 #include "states.hpp"
 #include "debug.hpp"
 #include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTextBlob.h"
 #include "ui.hpp"
 
 namespace State {
@@ -55,6 +58,20 @@ namespace State {
     if (colorProgress >= Visor::WIDTH * Visor::HEIGHT) colorProgress -= 2 * Visor::WIDTH * Visor::HEIGHT;
 
     Ui::spinner(out.cvs, SK_ColorWHITE);
+
+    SkPaint p;
+    p.setColor(SkColorSetRGB(255, 128, 0));
+
+    SkFont font;
+    font.setTypeface(SkTypeface::MakeFromName("Nimbus Sans", SkFontStyle::Bold()));
+    font.setSize(8);
+    out.cvs->drawString("Loading...", 4, 252, font, p);
+
+    //out.cvs->drawColor(SK_ColorWHITE);
+
+    SkPaint paint2;
+    auto text = SkTextBlob::MakeFromString("Hello, Skia!", SkFont(nullptr, 18));
+    out.cvs->drawTextBlob(text.get(), 50, 25, paint2);
   }
 
   void Initial::exit() {
