@@ -2,6 +2,7 @@
 #define GRAPHICS_HPP
 
 #include <SDL2/SDL.h>
+#include "include/core/SkCanvas.h"
 #include "types.hpp"
 
 class Window {
@@ -24,5 +25,26 @@ private:
 
   int width, height;
 };
+
+namespace Face {
+  enum EyeIndex { RBack = 0, RFront, LBack, LFront };
+
+  /** */
+  void drawEye(
+    SkCanvas *c,
+    SkPaint paintOutline,
+    SkPaint paintPupil,
+    float lookH = 0,
+    float lookV = 0,
+    float topEyelid = 1,
+    float bottomEyelid = 1,
+    float backCorner = 1,
+    float frontCorner = 1
+  );
+
+  void moveForEyeSaving(SkCanvas *c, EyeIndex e);
+
+  void drawMouth(SkCanvas *c, SkPaint outline, float open, float corner);
+}
 
 #endif

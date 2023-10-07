@@ -14,7 +14,7 @@ public:
   ~Serial();
 
   void tick(double delta);
-  
+
   uint32_t sendMessage(void *data, uint16_t len);
   SerialStatus getStatus(uint32_t id) const;
   SerialPayload getResponse(uint32_t id);
@@ -70,7 +70,7 @@ private:
 class Output {
 public:
   Output(const Serial &serial, const Window &window);
-  
+
   void send(OutputState &state) const;
 
 private:
