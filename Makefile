@@ -11,6 +11,13 @@ DEPDIR=$(BUILDDIR)/dep
 # Main Target object/name
 TARGET=$(BUILDDIR)/mbeast
 
+ifeq ($(HEADLESS), 1)
+$(info Building for headless mode)
+DEFINES=-D HEADLESS
+else
+$(info Building with SDL GUI)
+LD_GUI_ARGS=-lSDL2
+endif
 
 # Raspberry Pi name and paths
 RPI_RGB_LIB_NAME=rgbmatrix
@@ -24,7 +31,7 @@ SKIA_SUB_DIR=out/Shared
 SKIA_LIB_FULLPATH=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)/libskia.so
 
 # Compile flags
-CLIBS=-lSDL2 -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) -l$(SKIA_LIB_NAME) -lGL -lpthread -lrt -lm -lpthread
+CLIBS=$(LD_GUI_ARGS) -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) -l$(SKIA_LIB_NAME) -lGL -lpthread -lrt -lm -lpthread
 CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(SKIA_LIB_DIR) -I$(INCDIR)
 CFLAGS=$(CINCLUDES) -g -fno-exceptions -std=c++17 -Wl,-rpath=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)
 
@@ -48,8 +55,8 @@ $(RPI_RGB_LIB_FULLPATH):
 # 	Clone build_depot from https://chromium.googlesource.com/chromium/tools/depot_tools.git
 # 	Add to path with export PATH="/path/to/build_depot:${PATH}" in .bashrc
 #
-# REMOVED:
-#  skia_enable_fontmgr_empty=true
+# During (headless) Raspbian build, the following needs installed:
+# sudo apt install clang libfontconfig-dev libjpeg-dev libglx-dev libgl-dev libwebp-dev libharfbuzz-dev expat
 $(SKIA_LIB_FULLPATH):
 	cd $(SKIA_LIB_DIR) && \
 	python3 tools/git-sync-deps && \
@@ -64,9 +71,12 @@ $(DEPS): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR
 	cpp $(CFLAGS) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp)) -MM -MT $(subst $(DEPDIR),$(OBJDIR),$(@:.d=.o)) > $@
 	@echo '	@echo Building $$@...' >> $@
 	@echo '	@mkdir -p $$(@D)' >> $@
-	@echo '	@$$(CC) -c -o $$@ $$(subst $$(OBJDIR),$$(SRCDIR),$$(@:.o=.cpp)) $$(CFLAGS)' >> $@
+	@echo '	@$$(CC) -c $$(DEFINES) -o $$@ $$(subst $$(OBJDIR),$$(SRCDIR),$$(@:.o=.cpp)) $$(CFLAGS)' >> $@
 
 -include $(DEPS)
+.PHONY: headless
+headless:
+	make HEADLESS=1
 
 .PHONY: clean
 clean:

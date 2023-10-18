@@ -1,7 +1,7 @@
 #include "graphics.hpp"
 #include "debug.hpp"
 
-
+#ifndef HEADLESS
 Window::Window(int w, int h) {
   LOG("starting SDL window with resolution %dx%d", w, h);
   this->width = w;
@@ -121,3 +121,5 @@ Window::~Window() {
 
   LOG("SDL Services freed");
 }
+
+#endif

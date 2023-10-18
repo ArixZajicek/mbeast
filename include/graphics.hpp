@@ -1,30 +1,32 @@
 #ifndef GRAPHICS_HPP
 #define GRAPHICS_HPP
 
-#include <SDL2/SDL.h>
 #include "include/core/SkCanvas.h"
 #include "types.hpp"
 
-class Window {
-public:
-  Window(int w, int h);
-  ~Window();
+#ifndef HEADLESS
+  #include <SDL2/SDL.h>
+  class Window {
+  public:
+    Window(int w, int h);
+    ~Window();
 
-  void tick(double delta);
-  InputState getInputState();
-  void flip();
+    void tick(double delta);
+    InputState getInputState();
+    void flip();
 
-  SDL_Surface *getBackBuffer() const;
-  void draw(Color *pixels, int x, int y, int w, int h) const;
+    SDL_Surface *getBackBuffer() const;
+    void draw(Color *pixels, int x, int y, int w, int h) const;
 
-private:
-  SDL_Window *window;
-  SDL_Surface *windowSurface;
-  SDL_Surface *bufferSurface;
-  InputState inputState;
+  private:
+    SDL_Window *window;
+    SDL_Surface *windowSurface;
+    SDL_Surface *bufferSurface;
+    InputState inputState;
 
-  int width, height;
-};
+    int width, height;
+  };
+#endif
 
 namespace Face {
   enum EyeIndex { RBack = 0, RFront, LBack, LFront };

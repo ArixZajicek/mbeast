@@ -2,7 +2,6 @@
 #define HARDWARE_HPP
 
 #include <inttypes.h>
-#include <SDL2/SDL.h>
 #include "types.hpp"
 #include "graphics.hpp"
 
@@ -53,11 +52,6 @@ private:
   bool initSuccess = 0;
   bool flipBuffers = 0;
 
-  // SDL Relevant stuff
-  SDL_Window *sdlWindow = NULL;
-  SDL_Surface *sdlWindowSurface = NULL;
-  SDL_Surface *drawSurface = NULL;
-
   // RGB Matrix Stuff
   struct RGBLedMatrix *matrix = NULL;
   struct LedCanvas *backCanvas, *frontCanvas;
@@ -65,17 +59,6 @@ private:
   // Buffers
   Color *backBuffer = NULL;
   Color *frontBuffer = NULL;
-};
-
-class Output {
-public:
-  Output(const Serial &serial, const Window &window);
-
-  void send(OutputState &state) const;
-
-private:
-  const Serial &serial;
-  const Window &window;
 };
 
 class Input {

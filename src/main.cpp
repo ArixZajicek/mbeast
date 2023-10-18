@@ -13,12 +13,68 @@
 
 #include <vector>
 
+#ifdef HEADLESS
+
+void initDisplay() {
+}
+
+void tickDisplay(double delta) {
+}
+
+InputState getInputState() {
+  return {};
+}
+
+void drawDisplay(OutputState &outState) {
+}
+
+
+void freeDisplay() {
+}
+
+#else
+Window *window
+void initDisplay() {
+  window = new Window(Visor::WIDTH * 6, Visor::HEIGHT * 6);
+}
+
+void tickDisplay(double delta) {
+  window->tick(delta);
+}
+
+InputState getInputState() {
+  return window->getInputState();
+}
+
+void drawDisplay(OutputState &outState) {
+  SDL_Surface *tempSurface = SDL_CreateRGBSurfaceFrom(
+      outState.rawPix,
+      Visor::WIDTH, Visor::HEIGHT,
+      32, //24,
+      Visor::WIDTH * sizeof(SkColor), //3 * Visor::WIDTH,
+      0xFF0000, 0xFF00, 0xFF, 0xFF000000
+    );
+
+    SDL_Rect targetRect = {0, 0, Visor::WIDTH * 6, Visor::HEIGHT * 6};
+
+    SDL_BlitScaled(tempSurface, nullptr, window->getBackBuffer(), &targetRect);
+
+    SDL_FreeSurface(tempSurface);
+    window->flip();
+}
+
+void freeDisplay() {
+  delete window;
+}
+#endif
+
 int run(const Config &cfg) {
   LOG("Initializing objects");
 
   // Hardware devices
   Serial *serial = nullptr;
-  Window *window = new Window(Visor::WIDTH * 6, Visor::HEIGHT * 6);
+
+  initDisplay();
 
   if (cfg.isSerialEnabled()) {
     serial = new Serial(cfg.getSerialDevice());
@@ -32,7 +88,6 @@ int run(const Config &cfg) {
   LOG("Window created");
 
   Input input(*serial);
-  Output output(*serial, *window);
 
   // Context stack
   State::StateContext *ctxStack = new State::StateContext();
@@ -62,7 +117,7 @@ int run(const Config &cfg) {
     frameStart = std::chrono::steady_clock::now();
 
     // Tick main things
-    window->tick(lastFrameDelta);
+    tickDisplay(lastFrameDelta);
 
     State::StateContext *nextCtx = ctxStack;
     if (serial != nullptr) {
@@ -70,24 +125,11 @@ int run(const Config &cfg) {
       serial->tick(lastFrameDelta) ;
       ctxStack->state->tick(input.getResult(), lastFrameDelta, nextCtx);
     } else {
-      ctxStack->state->tick(window->getInputState(), lastFrameDelta, nextCtx);
+      ctxStack->state->tick(getInputState(), lastFrameDelta, nextCtx);
     }
     ctxStack->state->draw(outState);
 
-    SDL_Surface *tempSurface = SDL_CreateRGBSurfaceFrom(
-      outState.rawPix,
-      Visor::WIDTH, Visor::HEIGHT,
-      32, //24,
-      Visor::WIDTH * sizeof(SkColor), //3 * Visor::WIDTH,
-      0xFF0000, 0xFF00, 0xFF, 0xFF000000
-    );
-
-    SDL_Rect targetRect = {0, 0, Visor::WIDTH * 6, Visor::HEIGHT * 6};
-
-    SDL_BlitScaled(tempSurface, nullptr, window->getBackBuffer(), &targetRect);
-
-    SDL_FreeSurface(tempSurface);
-    window->flip();
+    drawDisplay(outState);
 
     State::StateContext *temp = nullptr;
     if (nextCtx != ctxStack) {
@@ -111,7 +153,7 @@ int run(const Config &cfg) {
 
     double actualFrameTime = (std::chrono::steady_clock::now() - frameStart).count() / 1000000000.0;
     if (actualFrameTime < targetFrametime) {
-      SDL_Delay((targetFrametime - (std::chrono::steady_clock::now() - frameStart).count() / 1000000000.0) * 1000);
+      //SDL_Delay((targetFrametime - (std::chrono::steady_clock::now() - frameStart).count() / 1000000000.0) * 1000);
     }
     frameEnd = std::chrono::steady_clock::now();
   }
@@ -119,7 +161,7 @@ int run(const Config &cfg) {
   LOG("Freeing hardware objects");
 
   delete serial;
-  delete window;
+  freeDisplay();
   delete outState.rawPix;
   delete outState.cvs;
 
