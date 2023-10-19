@@ -15,25 +15,21 @@
 
 #ifdef HEADLESS
 
-void initDisplay() {
-}
+void initDisplay() {}
 
-void tickDisplay(double delta) {
-}
+void tickDisplay(double delta) {}
 
 InputState getInputState() {
   return {};
 }
 
-void drawDisplay(OutputState &outState) {
-}
+void drawDisplay(OutputState &outState) {}
 
 
-void freeDisplay() {
-}
+void freeDisplay() {}
 
 #else
-Window *window
+Window *window;
 void initDisplay() {
   window = new Window(Visor::WIDTH * 6, Visor::HEIGHT * 6);
 }
@@ -48,19 +44,19 @@ InputState getInputState() {
 
 void drawDisplay(OutputState &outState) {
   SDL_Surface *tempSurface = SDL_CreateRGBSurfaceFrom(
-      outState.rawPix,
-      Visor::WIDTH, Visor::HEIGHT,
-      32, //24,
-      Visor::WIDTH * sizeof(SkColor), //3 * Visor::WIDTH,
-      0xFF0000, 0xFF00, 0xFF, 0xFF000000
-    );
+    outState.rawPix,
+    Visor::WIDTH, Visor::HEIGHT,
+    32, //24,
+    Visor::WIDTH * sizeof(SkColor), //3 * Visor::WIDTH,
+    0xFF0000, 0xFF00, 0xFF, 0xFF000000
+  );
 
-    SDL_Rect targetRect = {0, 0, Visor::WIDTH * 6, Visor::HEIGHT * 6};
+  SDL_Rect targetRect = { 0, 0, Visor::WIDTH * 6, Visor::HEIGHT * 6 };
 
-    SDL_BlitScaled(tempSurface, nullptr, window->getBackBuffer(), &targetRect);
+  SDL_BlitScaled(tempSurface, nullptr, window->getBackBuffer(), &targetRect);
 
-    SDL_FreeSurface(tempSurface);
-    window->flip();
+  SDL_FreeSurface(tempSurface);
+  window->flip();
 }
 
 void freeDisplay() {
@@ -97,12 +93,12 @@ int run(const Config &cfg) {
   SkImageInfo info = SkImageInfo::MakeN32Premul(Visor::WIDTH, Visor::HEIGHT);
   void *rawData = malloc(Visor::WIDTH * Visor::HEIGHT * sizeof(SkColor));
   sk_sp<SkSurface> rasterSurface = SkSurfaces::WrapPixels(info, rawData, Visor::WIDTH * sizeof(SkColor)); //SkSurfaces::Raster(info);
-  SkCanvas* canvas = rasterSurface->getCanvas();
-  
+  SkCanvas *canvas = rasterSurface->getCanvas();
+
   OutputState outState = {
     cvs: canvas,
-    rawPix: (SkColor *)rawData,
-    ears: {0, 0, 0, 0},
+    rawPix : (SkColor *)rawData,
+    ears : {0, 0, 0, 0},
   };
 
   LOG("Initialization complete");
@@ -122,7 +118,7 @@ int run(const Config &cfg) {
     State::StateContext *nextCtx = ctxStack;
     if (serial != nullptr) {
       input.tick();
-      serial->tick(lastFrameDelta) ;
+      serial->tick(lastFrameDelta);
       ctxStack->state->tick(input.getResult(), lastFrameDelta, nextCtx);
     } else {
       ctxStack->state->tick(getInputState(), lastFrameDelta, nextCtx);
@@ -147,7 +143,7 @@ int run(const Config &cfg) {
         ctxStack = nextCtx;
         ctxStack->state->enter(true);
       } else {
-         ABORT("Invalid next context returned. Unable to continue.");
+        ABORT("Invalid next context returned. Unable to continue.");
       }
     }
 
