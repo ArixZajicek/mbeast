@@ -44,7 +44,7 @@ public:
   Visor();
   ~Visor();
 
-  void draw(Color *pixel);
+  void draw(SkColor *pixel);
   void flip();
 
 private:

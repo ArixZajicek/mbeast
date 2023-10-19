@@ -55,10 +55,10 @@ Visor::Visor() {
 }
 
 /* Draw a full WIDTHxHEIGHT image provided here */
-void Visor::draw(Color *image) {
+void Visor::draw(SkColor *image) {
   for (int x = 0; x < WIDTH; x++) {
     for (int y = 0; y < HEIGHT; y++) {
-      led_canvas_set_pixel(backCanvas, x % WIDTH / 2, y + HEIGHT * (x / (WIDTH / 2)), image->r, image->g, image->b);
+      led_canvas_set_pixel(backCanvas, x % WIDTH / 2, y + HEIGHT * (x / (WIDTH / 2)), SkColorGetR(*image), SkColorGetG(*image), SkColorGetB(*image));
     }
   }
   LOG("copied new data into back canvas using manual fill");

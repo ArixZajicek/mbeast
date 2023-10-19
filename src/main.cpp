@@ -14,19 +14,27 @@
 #include <vector>
 
 #ifdef HEADLESS
+Visor *visor;
+void initDisplay() {
+  visor = new Visor();
+}
 
-void initDisplay() {}
-
-void tickDisplay(double delta) {}
+void tickDisplay(double delta) {
+  // Input stuff?
+}
 
 InputState getInputState() {
   return {};
 }
 
-void drawDisplay(OutputState &outState) {}
+void drawDisplay(OutputState &outState) {
+  visor->draw(outState.rawPix);
+}
 
 
-void freeDisplay() {}
+void freeDisplay() {
+  delete visor;
+}
 
 #else
 Window *window;
