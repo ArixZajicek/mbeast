@@ -68,8 +68,8 @@ public:
   // We can't assume reading input will be faster than a frame. We just let this
   // abstract away any logic for that under the hood, call tick() once per frame,
   // and call getResult() each time. getResult() may still have old data, but we
-  // can at least be sure it's valid (note that keysTyped still gets updated
-  // regardless of if the data is new or not)
+  // can at least be sure it's valid (note that keysTyped is still guaranteed to
+  // only include new keys once per frame regardless of if the data is new or not)
   void tick();
   InputState getResult();
 

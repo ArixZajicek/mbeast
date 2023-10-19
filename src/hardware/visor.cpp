@@ -12,6 +12,7 @@ Visor::Visor() {
   frontBuffer = (Color *)malloc(WIDTH * HEIGHT * sizeof(Color));
   LOG("finished allocating buffers");
 
+
   struct RGBLedMatrixOptions matrix_opts = {
       NULL,   // name of hardware mapping
       64,     // --led-rows
@@ -19,11 +20,11 @@ Visor::Visor() {
       2,      // --led-chain
       2,      // --led-parallel
 
-      2,      // N/A --led-pwm-bits (default is 11)
+      11,      // N/A --led-pwm-bits (default is 11)
       0,      // N/A --led-pwm-lsb-nanoseconds
       0,      // N/A --led-pwm-dither-bits
 
-      50,     // --led-brightness
+      100,     // --led-brightness
 
       0,      // N/A --led-scan-mode
 
@@ -47,6 +48,21 @@ Visor::Visor() {
       NULL
   };
 
+  /*
+  struct RGBLedMatrixOptions matrix_opts;
+  matrix_opts.rows = 64;
+  matrix_opts.cols = 64;
+  matrix_opts.chain_length = 2;
+  matrix_opts.parallel = 2;
+  matrix_opts.brightness = 50;
+  matrix_opts.row_address_type = 3;
+  matrix_opts.led_rgb_sequence = "BGR";
+
+  struct RGBLedRuntimeOptions matrix_runtime_opts;
+  matrix_runtime_opts.gpio_slowdown = 5;
+  */
+
+
   matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
   frontCanvas = led_matrix_get_canvas(matrix);
   backCanvas = led_matrix_create_offscreen_canvas(matrix);
@@ -56,10 +72,12 @@ Visor::Visor() {
 
 /* Draw a full WIDTHxHEIGHT image provided here */
 void Visor::draw(SkColor *image) {
-  for (int x = 0; x < WIDTH; x++) {
-    for (int y = 0; y < HEIGHT; y++) {
-      led_canvas_set_pixel(backCanvas, x % WIDTH / 2, y + HEIGHT * (x / (WIDTH / 2)), SkColorGetR(*image), SkColorGetG(*image), SkColorGetB(*image));
-    }
+  for (int i = 0; i < WIDTH * HEIGHT; ++i) {
+    int x = i % WIDTH;
+    int y = i / WIDTH + (x >= WIDTH / 2 ? HEIGHT : 0);
+
+    led_canvas_set_pixel(backCanvas, x % (WIDTH / 2), y, SkColorGetR(*image), SkColorGetG(*image), SkColorGetB(*image));
+    ++image;
   }
   LOG("copied new data into back canvas using manual fill");
 }

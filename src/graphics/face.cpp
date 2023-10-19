@@ -62,11 +62,11 @@ namespace Face {
 
   void drawMouth(SkCanvas *c, SkPaint outline, float open, float corner) {
     SkPath main;
-
-    main.moveTo(128, 55);
-    main.lineTo(106, 46);
-    main.lineTo(87, 56 - corner * 4);
-    main.quadTo(71, 52, MAP(59, 46, 62, 38, corner));
+    int Y_OFFSET = -8;
+    main.moveTo(128, 55 + Y_OFFSET);
+    main.lineTo(106, 46 + Y_OFFSET);
+    main.lineTo(87, 56 - corner * 4 + Y_OFFSET);
+    main.quadTo(71, 52, MAP(59, 46 - 4, 62, 38 - 4, corner));
 
 
     c->save();

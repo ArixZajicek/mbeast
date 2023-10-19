@@ -29,6 +29,7 @@ InputState getInputState() {
 
 void drawDisplay(OutputState &outState) {
   visor->draw(outState.rawPix);
+  visor->flip();
 }
 
 

@@ -23,7 +23,7 @@ namespace State {
   void Initial::tick(const InputState &input, double d, StateContext *&next) {
     //std::cout << "Ticking initial with time delta " << d << std::endl;
     if (input.keysTyped[InputKey::BACK]) next = ctx.parent;
-    if (input.keysTyped[InputKey::ACTION]) {
+    if (input.keysTyped[InputKey::ACTION] || true) {
       next = new StateContext({ &ctx, nullptr });
       Neutral *n = new Neutral(*next);
       next->state = n;
