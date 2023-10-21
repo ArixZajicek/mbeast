@@ -2,8 +2,10 @@
 #define HARDWARE_HPP
 
 #include <inttypes.h>
-#include "types.hpp"
-#include "graphics.hpp"
+
+#include "led-matrix.h"
+
+#include "main.hpp"
 
 class Serial {
 public:
@@ -46,24 +48,11 @@ public:
 
   void draw(SkColor *pixel);
   void flip();
-
-private:
-  // Flags
-  bool initSuccess = 0;
-  bool flipBuffers = 0;
-
-  // RGB Matrix Stuff
-  struct RGBLedMatrix *matrix = NULL;
-  struct LedCanvas *backCanvas, *frontCanvas;
-
-  // Buffers
-  Color *backBuffer = NULL;
-  Color *frontBuffer = NULL;
 };
 
 class Input {
 public:
-  Input(Serial &serial);
+  Input(Serial *serial = nullptr);
 
   // We can't assume reading input will be faster than a frame. We just let this
   // abstract away any logic for that under the hood, call tick() once per frame,
@@ -78,7 +67,7 @@ private:
   InputState state;
   InputKeys typed;
 
-  Serial &serial;
+  Serial *serial;
 
   const char msgReq = 'i';
   struct RawResponse {

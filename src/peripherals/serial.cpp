@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -7,8 +6,8 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
-#include "hardware.hpp"
-#include "debug.hpp"
+#include "main.hpp"
+#include "peripherals.hpp"
 
 Serial::Serial(const char *dev) {
   port = open(dev, O_RDWR);

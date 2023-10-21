@@ -1,6 +1,6 @@
 #include <string.h>
-#include "config.hpp"
-#include "debug.hpp"
+
+#include "main.hpp"
 
 static void printHelp() {
   std::cout << "Using mbeast" << std::endl << std::endl;

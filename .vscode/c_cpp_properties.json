@@ -1,7 +1,22 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "mbeast - Headless",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/lib/rpi_rgb_led_matrix/include",
+                "${workspaceFolder}/lib/skia"
+            ],
+            "defines": [
+                "HEADLESS"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "mbeast - SDL Debug",
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/lib/rpi_rgb_led_matrix/include",
@@ -9,7 +24,6 @@
                 "/usr/include/SDL2"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64"

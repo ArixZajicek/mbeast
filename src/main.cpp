@@ -1,77 +1,17 @@
 #include <iostream>
 #include <chrono>
 #include <cstring>
-#include "config.hpp"
-#include "debug.hpp"
-#include "states.hpp"
-#include "hardware.hpp"
+#include <vector>
+#include <thread>
 
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 
-#include <vector>
-
-#ifdef HEADLESS
-Visor *visor;
-void initDisplay() {
-  visor = new Visor();
-}
-
-void tickDisplay(double delta) {
-  // Input stuff?
-}
-
-InputState getInputState() {
-  return {};
-}
-
-void drawDisplay(OutputState &outState) {
-  visor->draw(outState.rawPix);
-  visor->flip();
-}
-
-
-void freeDisplay() {
-  delete visor;
-}
-
-#else
-Window *window;
-void initDisplay() {
-  window = new Window(Visor::WIDTH * 6, Visor::HEIGHT * 6);
-}
-
-void tickDisplay(double delta) {
-  window->tick(delta);
-}
-
-InputState getInputState() {
-  return window->getInputState();
-}
-
-void drawDisplay(OutputState &outState) {
-  SDL_Surface *tempSurface = SDL_CreateRGBSurfaceFrom(
-    outState.rawPix,
-    Visor::WIDTH, Visor::HEIGHT,
-    32, //24,
-    Visor::WIDTH * sizeof(SkColor), //3 * Visor::WIDTH,
-    0xFF0000, 0xFF00, 0xFF, 0xFF000000
-  );
-
-  SDL_Rect targetRect = { 0, 0, Visor::WIDTH * 6, Visor::HEIGHT * 6 };
-
-  SDL_BlitScaled(tempSurface, nullptr, window->getBackBuffer(), &targetRect);
-
-  SDL_FreeSurface(tempSurface);
-  window->flip();
-}
-
-void freeDisplay() {
-  delete window;
-}
-#endif
+#include "main.hpp"
+#include "peripherals.hpp"
+#include "states.hpp"
 
 int run(const Config &cfg) {
   LOG("Initializing objects");
@@ -79,7 +19,7 @@ int run(const Config &cfg) {
   // Hardware devices
   Serial *serial = nullptr;
 
-  initDisplay();
+  Visor visor;
 
   if (cfg.isSerialEnabled()) {
     serial = new Serial(cfg.getSerialDevice());
@@ -90,9 +30,10 @@ int run(const Config &cfg) {
     targetFrametime = 1.0 / cfg.getFPS();
   }
 
+  auto targetFrametimeDuration = std::chrono::nanoseconds(static_cast<int>(round(targetFrametime * 1000000000)));
   LOG("Window created");
 
-  Input input(*serial);
+  Input input(serial);
 
   // Context stack
   State::StateContext *ctxStack = new State::StateContext();
@@ -121,20 +62,14 @@ int run(const Config &cfg) {
     double lastFrameDelta = (frameEnd - frameStart).count() / 1000000000.0;
     frameStart = std::chrono::steady_clock::now();
 
-    // Tick main things
-    tickDisplay(lastFrameDelta);
-
     State::StateContext *nextCtx = ctxStack;
-    if (serial != nullptr) {
-      input.tick();
-      serial->tick(lastFrameDelta);
-      ctxStack->state->tick(input.getResult(), lastFrameDelta, nextCtx);
-    } else {
-      ctxStack->state->tick(getInputState(), lastFrameDelta, nextCtx);
-    }
+    input.tick();
+    if (serial != nullptr) serial->tick(lastFrameDelta);
+    ctxStack->state->tick(input.getResult(), lastFrameDelta, nextCtx);
     ctxStack->state->draw(outState);
 
-    drawDisplay(outState);
+    visor.draw(outState.rawPix);
+    visor.flip();
 
     State::StateContext *temp = nullptr;
     if (nextCtx != ctxStack) {
@@ -159,6 +94,7 @@ int run(const Config &cfg) {
     double actualFrameTime = (std::chrono::steady_clock::now() - frameStart).count() / 1000000000.0;
     if (actualFrameTime < targetFrametime) {
       //SDL_Delay((targetFrametime - (std::chrono::steady_clock::now() - frameStart).count() / 1000000000.0) * 1000);
+      std::this_thread::sleep_for(targetFrametimeDuration - (std::chrono::steady_clock::now() - frameStart));
     }
     frameEnd = std::chrono::steady_clock::now();
   }
@@ -166,7 +102,6 @@ int run(const Config &cfg) {
   LOG("Freeing hardware objects");
 
   delete serial;
-  freeDisplay();
   delete outState.rawPix;
   delete outState.cvs;
 

@@ -1,11 +1,14 @@
 #include <iostream>
 #include <memory.h>
 #include <cmath>
-#include "states.hpp"
-#include "graphics.hpp"
-#include "ui.hpp"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
+
+#include "main.hpp"
+#include "states.hpp"
+#include "graphics.hpp"
+
 
 // Nice cyan
 // #define CLR(i) SkColorSetRGB(20 * i, 220 * i, 255 * i)

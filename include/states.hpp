@@ -2,7 +2,8 @@
 #define STATES_HPP
 
 #include <inttypes.h>
-#include "hardware.hpp"
+
+#include "peripherals.hpp"
 
 namespace State {
   // Forward declarations:

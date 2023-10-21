@@ -1,5 +1,5 @@
-# C Compiler
-CC=g++
+# C++ Compiler
+CXX=g++
 
 # Important directories, relative to this Makefile
 SRCDIR=src
@@ -11,12 +11,8 @@ DEPDIR=$(BUILDDIR)/dep
 # Main Target object/name
 TARGET=$(BUILDDIR)/mbeast
 
-ifeq ($(HEADLESS), 1)
-$(info Building for headless mode)
+ifeq ($(HEADLESS), true)
 DEFINES=-D HEADLESS
-else
-$(info Building with SDL GUI)
-LD_GUI_ARGS=-lSDL2
 endif
 
 # Raspberry Pi name and paths
@@ -31,9 +27,24 @@ SKIA_SUB_DIR=out/Shared
 SKIA_LIB_FULLPATH=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)/libskia.so
 
 # Compile flags
-CLIBS=$(LD_GUI_ARGS) -L$(RPI_RGB_LIB_DIR)/lib -l$(RPI_RGB_LIB_NAME) -L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) -l$(SKIA_LIB_NAME) -lGL -lpthread -lrt -lm -lpthread
-CINCLUDES=-I$(RPI_RGB_LIB_DIR)/include -I$(SKIA_LIB_DIR) -I$(INCDIR)
-CFLAGS=$(CINCLUDES) -g -fno-exceptions -std=c++17 -Wl,-rpath=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)
+CLIBS= \
+	-L$(RPI_RGB_LIB_DIR)/lib \
+	-l$(RPI_RGB_LIB_NAME) \
+	-L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) \
+	-l$(SKIA_LIB_NAME) \
+	-lGL -lpthread -lrt -lm -lpthread
+
+CLIBS_GUI=-lSDL2
+
+CINCLUDES= \
+	-I$(INCDIR) \
+	-I$(RPI_RGB_LIB_DIR)/include \
+	-I$(SKIA_LIB_DIR)
+
+CFLAGS= \
+	$(CINCLUDES) \
+	-g -fno-exceptions -std=c++17 \
+	-Wl,-rpath=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp)
@@ -42,22 +53,27 @@ DEPS=$(subst $(SRCDIR),$(DEPDIR),$(SRCS:.cpp=.d))
 
 # Main output
 $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
-	@echo Building final target $(TARGET)...
-	@$(CC) -o $@ $^ $(CLIBS) $(CFLAGS)
-	@echo Done.
+	$(CXX) -o $@ $^ $(CLIBS) $(CLIBS_GUI) $(CFLAGS)
+
+$(TARGET)_headless: $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
+	$(CXX) -o $@ $^ $(CLIBS) $(CFLAGS)
 
 # Raspberry Pi lib (statically linked)
 $(RPI_RGB_LIB_FULLPATH): 
+	$(info Building the RPi RGB Matrix lib for the first time...)
 	$(MAKE) -C $(RPI_RGB_LIB_DIR)/lib
 
 # Skia lib (dynamically linked)
-# Requires clang and Chromium build_depot to be set up and in the path:
-# 	Clone build_depot from https://chromium.googlesource.com/chromium/tools/depot_tools.git
-# 	Add to path with export PATH="/path/to/build_depot:${PATH}" in .bashrc
+# Requires clang and Chromium depot_tools to be set up and in the path:
+# 	Clone depot_tools from https://chromium.googlesource.com/chromium/tools/depot_tools.git
+# 	Add to path with export PATH="/path/to/depot_tools:${PATH}" in .bashrc
 #
-# During (headless) Raspbian build, the following needs installed:
+# The following needs installed:
 # sudo apt install clang libfontconfig-dev libjpeg-dev libglx-dev libgl-dev libwebp-dev libharfbuzz-dev expat
 $(SKIA_LIB_FULLPATH):
+	$(info Building Skia for the first time...)
+	sudo apt update
+	sudo apt install -y clang libfontconfig-dev libjpeg-dev libglx-dev libgl-dev libwebp-dev libharfbuzz-dev expat
 	cd $(SKIA_LIB_DIR) && \
 	python3 tools/git-sync-deps && \
 	bin/fetch-ninja && \
@@ -66,17 +82,16 @@ $(SKIA_LIB_FULLPATH):
 
 # Intermediate dependencies
 $(DEPS): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp))
-	@echo Generating dependency file '$@'...
-	@mkdir -p $(@D)
+	$(info Generating dependency file '$@'...)
+	mkdir -p $(@D)
 	cpp $(CFLAGS) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp)) -MM -MT $(subst $(DEPDIR),$(OBJDIR),$(@:.d=.o)) > $@
-	@echo '	@echo Building $$@...' >> $@
 	@echo '	@mkdir -p $$(@D)' >> $@
-	@echo '	@$$(CC) -c $$(DEFINES) -o $$@ $$(subst $$(OBJDIR),$$(SRCDIR),$$(@:.o=.cpp)) $$(CFLAGS)' >> $@
+	@echo '	$$(CXX) -c $$(DEFINES) -o $$@ $$(subst $$(OBJDIR),$$(SRCDIR),$$(@:.o=.cpp)) $$(CFLAGS)' >> $@
 
 -include $(DEPS)
 .PHONY: headless
 headless:
-	make HEADLESS=1
+	make $(BUILDDIR)/mbeast_headless HEADLESS=true
 
 .PHONY: clean
 clean:

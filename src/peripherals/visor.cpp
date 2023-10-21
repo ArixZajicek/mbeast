@@ -1,17 +1,18 @@
+#ifdef HEADLESS
+
 #include <iostream>
+
 #include "led-matrix-c.h"
 
-#include "debug.hpp"
-#include "hardware.hpp"
+#include "main.hpp"
+#include "peripherals.hpp"
+
+
+struct RGBLedMatrix *matrix = NULL;
+struct LedCanvas *backCanvas, *frontCanvas;
 
 Visor::Visor() {
   LOG("starting with dimensions %dx%d", WIDTH, HEIGHT);
-
-  // Initialize double buffers
-  backBuffer = (Color *)malloc(WIDTH * HEIGHT * sizeof(Color));
-  frontBuffer = (Color *)malloc(WIDTH * HEIGHT * sizeof(Color));
-  LOG("finished allocating buffers");
-
 
   struct RGBLedMatrixOptions matrix_opts = {
       NULL,   // name of hardware mapping
@@ -89,11 +90,6 @@ void Visor::flip() {
 
 Visor::~Visor() {
   led_matrix_delete(matrix);
-
-  if (backBuffer != nullptr || frontBuffer != nullptr) {
-    free(backBuffer);
-    free(frontBuffer);
-    backBuffer = nullptr;
-    frontBuffer = nullptr;
-  }
 }
+
+#endif

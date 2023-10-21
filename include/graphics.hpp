@@ -2,31 +2,6 @@
 #define GRAPHICS_HPP
 
 #include "include/core/SkCanvas.h"
-#include "types.hpp"
-
-#ifndef HEADLESS
-  #include <SDL2/SDL.h>
-  class Window {
-  public:
-    Window(int w, int h);
-    ~Window();
-
-    void tick(double delta);
-    InputState getInputState();
-    void flip();
-
-    SDL_Surface *getBackBuffer() const;
-    void draw(Color *pixels, int x, int y, int w, int h) const;
-
-  private:
-    SDL_Window *window;
-    SDL_Surface *windowSurface;
-    SDL_Surface *bufferSurface;
-    InputState inputState;
-
-    int width, height;
-  };
-#endif
 
 namespace Face {
   enum EyeIndex { RBack = 0, RFront, LBack, LFront };
@@ -47,6 +22,31 @@ namespace Face {
   void moveForEyeSaving(SkCanvas *c, EyeIndex e);
 
   void drawMouth(SkCanvas *c, SkPaint outline, float open, float corner);
+}
+
+namespace Ui {
+  enum Justify {
+    LEFT, CENTER, RIGHT
+  };
+
+  double period(double d);
+
+  void spinner(
+    SkCanvas *c,
+    const SkColor color,
+    const SkPoint center = { 128, 32 },
+    const double radius = 14,
+    const double sizeVariance = 8
+  );
+
+  void text(
+    SkCanvas *c,
+    const char text[],
+    const SkPoint origin,
+    const double size,
+    const Justify j,
+    const SkColor color
+  );
 }
 
 #endif

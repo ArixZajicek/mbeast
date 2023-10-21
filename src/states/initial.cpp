@@ -1,15 +1,17 @@
 #include <iostream>
 #include <memory.h>
 #include <chrono>
-#include "states.hpp"
-#include "debug.hpp"
+
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkFontMgr.h"
-#include "ui.hpp"
+
+#include "main.hpp"
+#include "states.hpp"
+#include "graphics.hpp"
 
 namespace State {
   Initial::Initial(StateContext &ctx) : IState(ctx) {
@@ -22,8 +24,9 @@ namespace State {
 
   void Initial::tick(const InputState &input, double d, StateContext *&next) {
     //std::cout << "Ticking initial with time delta " << d << std::endl;
+
     if (input.keysTyped[InputKey::BACK]) next = ctx.parent;
-    if (input.keysTyped[InputKey::ACTION] || true) {
+    if (input.keysTyped[InputKey::ACTION]) {
       next = new StateContext({ &ctx, nullptr });
       Neutral *n = new Neutral(*next);
       next->state = n;

@@ -84,5 +84,6 @@
   },
   "C_Cpp.vcFormat.newLine.beforeCatch": false,
   "C_Cpp.vcFormat.newLine.beforeElse": false,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "C_Cpp.default.compilerPath": "/usr/bin/g++",
 }

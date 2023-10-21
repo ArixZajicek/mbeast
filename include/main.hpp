@@ -1,9 +1,36 @@
-#ifndef MODELS_HPP
-#define MODELS_HPP
+#ifndef MAIN_HPP
+#define MAIN_HPP
 
+#include <iostream>
 #include <inttypes.h>
-#include "led-matrix-c.h"
+
 #include "include/core/SkCanvas.h"
+
+/* CONFIG HELPERS */
+
+class Config {
+public:
+  Config(int argc, char **argv);
+  ~Config();
+
+  bool isDebug() const;
+  bool isSerialEnabled() const;
+  const char *getSerialDevice() const;
+  int getFPS() const;
+
+  int getInitSuccess() const;
+private:
+  bool debug;
+  bool serialEnabled;
+  const char *serialDevice;
+  int fps;
+  int retVal;
+};
+
+/* DEBUG HELPERS */
+
+#define LOG(...) printf("[%s()]: ", __FUNCTION__); printf(__VA_ARGS__); printf("\n")
+#define ABORT(...) printf("ERROR IN %s(): ", __FUNCTION__); printf(__VA_ARGS__); printf("\n"); exit(-1)
 
 /* ENUMERATIONS */
 

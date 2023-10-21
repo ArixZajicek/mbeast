@@ -11,8 +11,8 @@ make
 
 ## Acknowledgements
 
-This project uses several third-party libraries.
+This project uses the following third-party libraries:
 
 - rpi_rgb_led_matrix
-- SDL
+- SDL2
 - Skia
