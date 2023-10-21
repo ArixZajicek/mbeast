@@ -1,7 +1,6 @@
 #ifdef HEADLESS
 
 #include <malloc.h>
-
 #include "main.hpp"
 #include "peripherals.hpp"
 

@@ -1,5 +1,4 @@
 #include <string.h>
-
 #include "main.hpp"
 
 static void printHelp() {
@@ -11,7 +10,7 @@ static void printHelp() {
   std::cout << "  -h, --help                      This help display" << std::endl;
   std::cout << "  -d, --debug                     Log debug output" << std::endl;
   std::cout << "  -s device, --serial=device      Specify device to use. Default is /dev/ttyUSB0" << std::endl;
-  std::cout << "  -S, --no-serial                 Disable all serial communication" << std::endl;
+  //std::cout << "  -S, --no-serial                 Disable all serial communication" << std::endl;
   std::cout << "  -f 60, --fps=60                 Set the FPS limit. Default is 60. Values under 1" << std::endl;
   std::cout << "                               remove the limit entirely (not recommended)" << std::endl;
 }
@@ -19,7 +18,7 @@ static void printHelp() {
 Config::Config(int argc, char **args) {
   LOG("Config object initializing");
   debug = false;
-  serialEnabled = true;
+  serialEnabled = false;
   serialDevice = "/dev/ttyUSB0";
   fps = 60;
 
@@ -40,9 +39,8 @@ Config::Config(int argc, char **args) {
           return;
         } else if (strcmp(arg, "debug") == 0) {
           debug = true;
-        } else if (strcmp(arg, "no-serial") == 0) {
-          serialEnabled = false;
         } else if (strncmp(arg, "serial=", 7) == 0) {
+          serialEnabled = true;
           if (strlen(arg) > 7) {
             serialDevice = arg + 7;
           } else {
@@ -75,11 +73,9 @@ Config::Config(int argc, char **args) {
           case 'd':
             debug = true;
             break;
-          case 'S':
-            serialEnabled = false;
-            break;
           case 's':
             if (*(c + 1) == '\0' && i + 1 < argc && args[i + 1][0] != '-') {
+              serialEnabled = true;
               serialDevice = (args[++i]);
             } else {
               printf("-s is missing serial device\n");

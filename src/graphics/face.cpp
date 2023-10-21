@@ -1,6 +1,6 @@
-#include "graphics.hpp"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
+#include "graphics.hpp"
 
 #define MAP(x1, y1, x2, y2, s) x1 + (x2 - x1) * s, y1 + (y2 - y1) * s
 
@@ -49,15 +49,17 @@ namespace Face {
 
   void moveForEyeSaving(SkCanvas *c, EyeIndex e) {
     c->save();
+    c->translate(-4, -6);
     if (e == EyeIndex::LBack || e == EyeIndex::LFront) {
       c->scale(-1, 1);
-      c->translate(-256, 0);
+      c->translate(-256 - 8, 0);
     }
 
     if (e == EyeIndex::LFront || e == EyeIndex::RFront) {
       c->translate(40, 4);
       c->scale(0.9, 0.9);
     }
+
   }
 
   void drawMouth(SkCanvas *c, SkPaint outline, float open, float corner) {
@@ -67,6 +69,24 @@ namespace Face {
     main.lineTo(106, 46 + Y_OFFSET);
     main.lineTo(87, 56 - corner * 4 + Y_OFFSET);
     main.quadTo(71, 52, MAP(59, 46 - 4, 62, 38 - 4, corner));
+
+
+    c->save();
+    bool cont = true;
+    for (int i = 0; i < 2; i++) {
+      c->drawPath(main, outline);
+
+      c->scale(-1, 1);
+      c->translate(-256, 0);
+    }
+    c->restore();
+  }
+
+  void drawNose(SkCanvas *c, SkPaint outline) {
+    SkPath main;
+    main.moveTo(112, 13);
+    main.lineTo(114, 10);
+    main.quadTo(106, 8, 104, 10);
 
 
     c->save();

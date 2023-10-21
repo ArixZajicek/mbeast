@@ -2,9 +2,7 @@
 #define HARDWARE_HPP
 
 #include <inttypes.h>
-
 #include "led-matrix.h"
-
 #include "main.hpp"
 
 class Serial {
@@ -53,6 +51,7 @@ public:
 class Input {
 public:
   Input(Serial *serial = nullptr);
+  ~Input();
 
   // We can't assume reading input will be faster than a frame. We just let this
   // abstract away any logic for that under the hood, call tick() once per frame,

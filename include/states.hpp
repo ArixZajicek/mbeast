@@ -2,7 +2,6 @@
 #define STATES_HPP
 
 #include <inttypes.h>
-
 #include "peripherals.hpp"
 
 namespace State {
@@ -52,6 +51,8 @@ namespace State {
     void tick(const InputState &, double, StateContext *&);
     void draw(OutputState &);
     void exit();
+  private:
+    double timeToNextBlink, blink, timeToNextShift, t_h, h, t_v, v;
   };
 }
 

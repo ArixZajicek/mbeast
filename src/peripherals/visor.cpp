@@ -1,12 +1,9 @@
 #ifdef HEADLESS
 
 #include <iostream>
-
 #include "led-matrix-c.h"
-
 #include "main.hpp"
 #include "peripherals.hpp"
-
 
 struct RGBLedMatrix *matrix = NULL;
 struct LedCanvas *backCanvas, *frontCanvas;
@@ -48,21 +45,6 @@ Visor::Visor() {
       NULL,
       NULL
   };
-
-  /*
-  struct RGBLedMatrixOptions matrix_opts;
-  matrix_opts.rows = 64;
-  matrix_opts.cols = 64;
-  matrix_opts.chain_length = 2;
-  matrix_opts.parallel = 2;
-  matrix_opts.brightness = 50;
-  matrix_opts.row_address_type = 3;
-  matrix_opts.led_rgb_sequence = "BGR";
-
-  struct RGBLedRuntimeOptions matrix_runtime_opts;
-  matrix_runtime_opts.gpio_slowdown = 5;
-  */
-
 
   matrix = led_matrix_create_from_options_and_rt_options(&matrix_opts, &matrix_runtime_opts);
   frontCanvas = led_matrix_get_canvas(matrix);

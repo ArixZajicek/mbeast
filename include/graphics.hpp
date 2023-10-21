@@ -22,6 +22,8 @@ namespace Face {
   void moveForEyeSaving(SkCanvas *c, EyeIndex e);
 
   void drawMouth(SkCanvas *c, SkPaint outline, float open, float corner);
+
+  void drawNose(SkCanvas *c, SkPaint outline);
 }
 
 namespace Ui {

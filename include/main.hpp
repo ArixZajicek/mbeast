@@ -3,10 +3,9 @@
 
 #include <iostream>
 #include <inttypes.h>
-
 #include "include/core/SkCanvas.h"
 
-/* CONFIG HELPERS */
+/* CONFIG CLASS */
 
 class Config {
 public:
@@ -49,11 +48,9 @@ enum SerialStatus {
   NOT_FOUND = 404,
 };
 
-/* CUSTOM TYPES */
+/* TYPES AND STRUCTS */
 
 typedef bool InputKeys[InputKey::__COUNT];
-
-/* STRUCTS */
 
 struct SerialPayload {
   uint16_t length;

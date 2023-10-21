@@ -1,36 +1,67 @@
 #include <iostream>
 #include <memory.h>
 #include <cmath>
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
-
 #include "main.hpp"
 #include "states.hpp"
 #include "graphics.hpp"
 
-
 // Nice cyan
-// #define CLR(i) SkColorSetRGB(20 * i, 220 * i, 255 * i)
-
+#define CLR(i) SkColorSetRGB(20 * i, 220 * i, 255 * i)
 // Amber
 // #define CLR(i) SkColorSetRGB(255 * i, 132 * i, 0 * i)
-
 // Green
-#define CLR(i) SkColorSetRGB(64 * i, 240 * i, 64 * i)
+//#define CLR(i) SkColorSetRGB(64 * i, 240 * i, 64 * i)
 
 namespace State {
-  Neutral::Neutral(StateContext &ctx) : IState(ctx) {
-    // Process Neutral data
+  double randDouble(double min, double max) {
+    return static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * (max - min) + min;
   }
 
-  void Neutral::enter(bool resume) {
+  double randDouble(double max) {
+    return randDouble(0, max);
+  }
 
+  Neutral::Neutral(StateContext &ctx) : IState(ctx) {}
+
+  void Neutral::enter(bool resume) {
+    h = 0;
+    v = 0;
+    t_h = 0;
+    t_v = 0;
+    timeToNextBlink = randDouble(12);
+    timeToNextShift = randDouble(9);
+    blink = -1.0;
   }
 
   void Neutral::tick(const InputState &input, double d, StateContext *&next) {
-    //std::cout << "Ticking Neutral with time delta " << d << std::endl;
     if (input.keysTyped[InputKey::BACK]) next = ctx.parent;
+    else {
+      timeToNextBlink -= d;
+      timeToNextShift -= d;
+
+      if (timeToNextBlink < 0) {
+        timeToNextBlink = randDouble(12);
+        blink = 1.0;
+      } else if (blink > -1.0) {
+        blink -= d * 12;
+        if (blink < -1.0) blink = -1.0;
+      }
+
+      if (timeToNextShift < 0) {
+        timeToNextShift = randDouble(9);
+        t_h = randDouble(-1, 1);
+        t_v = randDouble(-1, 1);
+      }
+
+      if (std::abs(t_h - h) > 0.01) {
+        h += (t_h - h) * 0.5 * d * 20;
+      }
+      if (std::abs(t_v - v) > 0.01) {
+        v += (t_v - v) * 0.5 * d * 20;
+      }
+    }
   }
 
   void Neutral::draw(OutputState &out) {
@@ -70,13 +101,27 @@ namespace State {
         out.cvs->drawLine(11, 6, 34, 26, pLine);
         out.cvs->drawLine(35, 2, 11, 29, pLine);
       } else {
-        Face::drawEye(out.cvs, pOut, pPupil, t3, t5, t7 + t14 / 2, t7, t14 * 6, t7);
+        Face::drawEye(
+          out.cvs,
+          pOut,
+          pPupil,
+          h * (i >= 2 ? -1 : 1),
+          v,
+          std::abs(blink * 1),
+          0,
+          0,
+          std::abs(blink * 0.5)
+        );
       }
       out.cvs->restore();
     }
 
-    // Mouth?
-    Face::drawMouth(out.cvs, pLine, 0, t14);
+    out.cvs->save();
+    out.cvs->translate(0, -2 + t3 * 2);
+    Face::drawMouth(out.cvs, pLine, 0, t3 * 0.1 + 0.1);
+    out.cvs->restore();
+
+    Face::drawNose(out.cvs, pLine);
   }
 
   void Neutral::exit() {

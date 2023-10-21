@@ -5,7 +5,6 @@
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-
 #include "main.hpp"
 #include "peripherals.hpp"
 

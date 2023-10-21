@@ -1,7 +1,5 @@
 #include <chrono>
-
 #include "include/core/SkFont.h"
-
 #include "main.hpp"
 #include "graphics.hpp"
 

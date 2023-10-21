@@ -1,14 +1,12 @@
 #include <iostream>
 #include <memory.h>
 #include <chrono>
-
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkFontMgr.h"
-
 #include "main.hpp"
 #include "states.hpp"
 #include "graphics.hpp"
@@ -35,6 +33,7 @@ namespace State {
   }
 
   void Initial::draw(OutputState &out) {
+    /*
     uint8_t r = 255, g = 0, b = 0;
     static int colorProgress = 0;
 
@@ -61,7 +60,8 @@ namespace State {
 
     colorProgress += 69;
     if (colorProgress >= Visor::WIDTH * Visor::HEIGHT) colorProgress -= 2 * Visor::WIDTH * Visor::HEIGHT;
-
+    */
+    out.cvs->clear(SK_ColorBLACK);
     Ui::spinner(out.cvs, SK_ColorWHITE, { 128, 26 });
 
     char text[20] = "Loading";

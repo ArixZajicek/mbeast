@@ -2,7 +2,6 @@
 
 #include "main.hpp"
 #include "peripherals.hpp"
-
 #include "SDL2/SDL.h"
 
 SDL_Window *window;
@@ -41,7 +40,7 @@ void Visor::draw(SkColor *image) {
     WIDTH, HEIGHT,
     32,
     4 * WIDTH,
-    0xFF, 0xFF00, 0xFF0000, 0x00
+    0xFF0000, 0xFF00, 0xFF, 0x00
   );
 
   SDL_Rect rect = {
@@ -59,6 +58,7 @@ void Visor::flip() {
 Visor::~Visor() {
   LOG("Freeing window surface");
 
+  SDL_FreeSurface(windowSurface);
   SDL_DestroyWindow(window);
   SDL_Quit();
 
@@ -86,7 +86,7 @@ void Input::tick() {
   while (SDL_PollEvent(&e) != 0) {
     switch (e.type) {
     case SDL_KEYDOWN: case SDL_KEYUP:
-      LOG("SDL KEY EVENT FOUND: %d", e.key.keysym.sym);
+      // LOG("SDL KEY EVENT FOUND: %d", e.key.keysym.sym);
       switch (e.key.keysym.sym) {
       case SDLK_UP:
         keyact(state, InputKey::UP, e.type == SDL_KEYDOWN);
@@ -120,6 +120,10 @@ void Input::tick() {
 
 InputState Input::getResult() {
   return state;
+}
+
+Input::~Input() {
+  LOG("Exiting input object");
 }
 
 #endif
