@@ -4,8 +4,8 @@
 #include "main.hpp"
 #include "peripherals.hpp"
 
-Input::Input(Serial &s) {
-  serial = &s;
+Input::Input(Serial *s) {
+  serial = s;
   msg = 0;
   state = {};
   for (int k = 0; k < InputKey::__COUNT; k++) {
@@ -68,6 +68,10 @@ InputState Input::getResult() {
   }
 
   return state;
+}
+
+Input::~Input() {
+  LOG("Exiting input object");
 }
 
 #endif

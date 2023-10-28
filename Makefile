@@ -33,7 +33,7 @@ CLIBS= \
 	-l$(RPI_RGB_LIB_NAME) \
 	-L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) \
 	-l$(SKIA_LIB_NAME) \
-	-lSDL2 -lGL -lpthread -lrt -lm -lpthread
+	-lGL -lpthread -lrt -lm -lpthread
 
 CINCLUDES= \
 	-I$(INCDIR) \
@@ -43,6 +43,8 @@ CINCLUDES= \
 ifeq ($(HEADLESS), 1)
 $(info Compiling for headless executable)
 DEFINES=-D HEADLESS
+else
+CLIBS_GUI=-lSDL2
 endif
 
 CFLAGS= \
@@ -58,7 +60,7 @@ DEPS=$(subst $(SRCDIR),$(DEPDIR),$(SRCS:.cpp=.d))
 
 # Main output
 $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
-	$(CXX) -o $@ $^ $(CLIBS) $(CFLAGS)
+	$(CXX) -o $@ $^ $(CLIBS) $(CLIBS_GUI) $(CFLAGS)
 	$(info Build succeeded!)
 
 # Raspberry Pi lib (statically linked)
