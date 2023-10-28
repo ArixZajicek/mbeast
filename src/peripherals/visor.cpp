@@ -62,12 +62,10 @@ void Visor::draw(SkColor *image) {
     led_canvas_set_pixel(backCanvas, x % (WIDTH / 2), y, SkColorGetR(*image), SkColorGetG(*image), SkColorGetB(*image));
     ++image;
   }
-  LOG("copied new data into back canvas using manual fill");
 }
 
 void Visor::flip() {
   backCanvas = led_matrix_swap_on_vsync(matrix, backCanvas);
-  LOG("buffer flip complete");
 }
 
 Visor::~Visor() {
