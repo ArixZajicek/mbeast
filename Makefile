@@ -12,6 +12,7 @@ DEPDIR=$(BUILDDIR)/dep
 TARGET=$(BUILDDIR)/mbeast
 
 ifeq ($(HEADLESS), true)
+$()
 DEFINES=-D HEADLESS
 endif
 

@@ -54,6 +54,17 @@ namespace State {
   private:
     double timeToNextBlink, blink, timeToNextShift, t_h, h, t_v, v;
   };
+
+  class MemeBites : public IState {
+  public:
+    MemeBites(StateContext &ctx);
+    void enter(bool);
+    void tick(const InputState &, double, StateContext *&);
+    void draw(OutputState &);
+    void exit();
+  private:
+    double textProgress;
+  };
 }
 
 #endif

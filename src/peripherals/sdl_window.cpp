@@ -6,18 +6,18 @@
 
 SDL_Window *window;
 SDL_Surface *windowSurface;
-
+SDL_Joystick *gameController = nullptr;
 const int WINDOW_SCALAR = 5;
 
 Visor::Visor() {
   LOG("starting SDL window with resolution %dx%d", WIDTH, HEIGHT);
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
     ABORT("SDL could not initialize!\n%s", SDL_GetError());
   }
 
   window = SDL_CreateWindow(
-    "HUB75 Matrix Debug Window",
+    "Mantled Beast Debug Window",
     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
     WIDTH * WINDOW_SCALAR, HEIGHT * WINDOW_SCALAR,
     SDL_WINDOW_SHOWN
@@ -32,6 +32,15 @@ Visor::Visor() {
   SDL_UpdateWindowSurface(window);
 
   LOG("SDL Window created");
+
+  if (SDL_NumJoysticks() < 1) {
+    LOG("No joysticks found. Not initializing.");
+  } else {
+    gameController = SDL_JoystickOpen(0);
+    if (gameController == nullptr) {
+      LOG("Could not initialize joystick 0: %s", SDL_GetError());
+    }
+  }
 }
 
 void Visor::draw(SkColor *image) {
@@ -60,6 +69,7 @@ Visor::~Visor() {
 
   SDL_FreeSurface(windowSurface);
   SDL_DestroyWindow(window);
+  SDL_JoystickClose(gameController);
   SDL_Quit();
 
   LOG("SDL Services freed");
@@ -110,6 +120,9 @@ void Input::tick() {
         keyact(state, InputKey::BOOP, e.type == SDL_KEYDOWN);
         break;
       }
+      break;
+    case SDL_JOYBUTTONDOWN:
+      LOG("Joy button %d pressed", e.jbutton.which);
       break;
     case SDL_QUIT:
       keyact(state, InputKey::BACK, true);

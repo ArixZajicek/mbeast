@@ -37,7 +37,11 @@ namespace State {
 
   void Neutral::tick(const InputState &input, double d, StateContext *&next) {
     if (input.keysTyped[InputKey::BACK]) next = ctx.parent;
-    else {
+    else if (input.keysTyped[InputKey::ACTION]) {
+      next = new StateContext({ &ctx, nullptr });
+      MemeBites *n = new MemeBites(*next);
+      next->state = n;
+    } else {
       timeToNextBlink -= d;
       timeToNextShift -= d;
 
@@ -101,11 +105,15 @@ namespace State {
         out.cvs->drawLine(11, 6, 34, 26, pLine);
         out.cvs->drawLine(35, 2, 11, 29, pLine);
       } else {
+        const double PEAK = 0.75;
+        double hL = h < 0 ? PEAK + h * PEAK * 2 : PEAK;
+        double hR = h > 0 ? PEAK - h * PEAK * 2 : PEAK;
+
         Face::drawEye(
           out.cvs,
           pOut,
           pPupil,
-          h * (i >= 2 ? -1 : 1),
+          (i >= 2 ? hL : hR),
           v,
           std::abs(blink * 1),
           0,

@@ -60,13 +60,13 @@ namespace Ui {
 
     switch (j) {
     case Justify::LEFT:
-      c->drawString(text, origin.fX, origin.fY + bounds.height(), font, p);
+      c->drawString(text, origin.fX, origin.fY + size, font, p);
       break;
     case Justify::CENTER:
-      c->drawString(text, origin.fX - bounds.width() / 2, origin.fY + bounds.height(), font, p);
+      c->drawString(text, origin.fX - bounds.width() / 2, origin.fY + size, font, p);
       break;
     case Justify::RIGHT:
-      c->drawString(text, origin.fX - bounds.width(), origin.fY + bounds.height(), font, p);
+      c->drawString(text, origin.fX - bounds.width(), origin.fY + size, font, p);
       break;
     }
   }
