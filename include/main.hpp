@@ -10,7 +10,6 @@
 class Config {
 public:
   Config(int argc, char **argv);
-  ~Config();
 
   bool isDebug() const;
   bool isSerialEnabled() const;

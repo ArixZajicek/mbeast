@@ -109,10 +109,6 @@ Config::Config(int argc, char **args) {
   retVal = 0;
 }
 
-Config::~Config() {
-  LOG("Config object exiting");
-}
-
 bool Config::isDebug() const { return debug; }
 bool Config::isSerialEnabled() const { return serialEnabled; }
 const char *Config::getSerialDevice() const { return serialDevice; }

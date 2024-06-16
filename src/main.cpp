@@ -94,25 +94,13 @@ int run(const Config &cfg) {
     frameEnd = std::chrono::steady_clock::now();
   }
 
-  LOG("Deleting canvas");
-  delete outState->cvs; // Also deletes the raster surface
-
-  LOG("Deleting pixel buffer");
+  // Don't delete Skia Canvas, this causes a segfault
+  // because Skia likely is running a background thread.
   delete outState->rawPix;
-
-  LOG("Deleting output state");
   delete outState;
-
-  LOG("Deleting context stack");
   delete ctxStack;
-
-  LOG("Deleting input");
   delete input;
-
-  LOG("Deleting Visor");
   delete visor;
-
-  LOG("Deleting serial object");
   delete serial;
 
   LOG("Exiting run()");
@@ -133,8 +121,5 @@ int main(int argc, char **argv) {
 
   LOG("Args parsed");
 
-  run(cfg);
-
-  LOG("Safely quitting application");
-  return 0;
+  return run(cfg);
 }
