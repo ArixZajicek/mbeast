@@ -135,8 +135,4 @@ InputState Input::getResult() {
   return state;
 }
 
-Input::~Input() {
-  LOG("Exiting input object");
-}
-
 #endif

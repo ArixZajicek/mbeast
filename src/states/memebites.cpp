@@ -36,25 +36,23 @@ namespace State {
 
     const char *text[] = {
       "An error has occurred. To continue:",
-      "Boop snout to return to normal operation, or",
-      "press LPAW+RPAW to restart your mantled beast.",
+      "Boop snoot to return to normal operation, or",
+      "press START+SELECT to restart your mantled beast.",
       "You will lose any unsaved information.",
       "Error: 0E : 016F : E621FA00",
     };
 
     const int rows = 5;
-    const int cols = 47;
-
-
+    const int cols = 49;
 
     for (int row = 0; row < rows && row < textProgress * rows; row++) {
 
       if (row > rows * textProgress - 1) {
         char temp[cols] = "";
         strncat(temp, text[row], std::min(static_cast<int>(floor((rows * textProgress - row) * cols)), static_cast<int>(strlen(text[row]))));
-        Ui::text(out.cvs, temp, { 0, 10.0f * row }, 10, Ui::Justify::LEFT, SK_ColorWHITE);
+        Ui::text(out.cvs, temp, { 0, 10.0f * row }, 6, Ui::Justify::LEFT, SK_ColorWHITE);
       } else {
-        Ui::text(out.cvs, text[row], { 0, 10.0f * row }, 10, Ui::Justify::LEFT, SK_ColorWHITE);
+        Ui::text(out.cvs, text[row], { 0, 10.0f * row }, 6, Ui::Justify::LEFT, SK_ColorWHITE);
       }
     }
   }
