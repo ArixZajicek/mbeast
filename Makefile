@@ -33,19 +33,23 @@ CLIBS= \
 	-l$(RPI_RGB_LIB_NAME) \
 	-L$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) \
 	-l$(SKIA_LIB_NAME) \
-	-lGL -lpthread -lrt -lm -lpthread
-
-CLIBS_GUI=-lSDL2
+	-lSDL2 -lGL -lpthread -lrt -lm -lpthread
 
 CINCLUDES= \
 	-I$(INCDIR) \
 	-I$(RPI_RGB_LIB_DIR)/include \
 	-I$(SKIA_LIB_DIR)
 
+ifeq ($(HEADLESS), 1)
+$(info Compiling for headless executable)
+DEFINES=-D HEADLESS
+endif
+
 CFLAGS= \
 	$(CINCLUDES) \
 	-g -fno-exceptions -std=c++17 \
-	-Wl,-rpath=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR)
+	-Wl,-rpath=$(SKIA_LIB_DIR)/$(SKIA_SUB_DIR) \
+	$(DEFINES)
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp)
@@ -54,10 +58,8 @@ DEPS=$(subst $(SRCDIR),$(DEPDIR),$(SRCS:.cpp=.d))
 
 # Main output
 $(TARGET): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
-	$(CXX) -o $@ $^ $(CLIBS) $(CLIBS_GUI) $(CFLAGS)
-
-$(TARGET)_headless: $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(OBJS)
 	$(CXX) -o $@ $^ $(CLIBS) $(CFLAGS)
+	$(info Build succeeded!)
 
 # Raspberry Pi lib (statically linked)
 $(RPI_RGB_LIB_FULLPATH): 
@@ -87,17 +89,6 @@ $(DEPS): $(RPI_RGB_LIB_FULLPATH) $(SKIA_LIB_FULLPATH) $(subst $(DEPDIR),$(SRCDIR
 	mkdir -p $(@D)
 	cpp $(CFLAGS) $(subst $(DEPDIR),$(SRCDIR),$(@:.d=.cpp)) -MM -MT $(subst $(DEPDIR),$(OBJDIR),$(@:.d=.o)) > $@
 	@echo '	@mkdir -p $$(@D)' >> $@
-	@echo '	$$(CXX) -c $$(DEFINES) -o $$@ $$(subst $$(OBJDIR),$$(SRCDIR),$$(@:.o=.cpp)) $$(CFLAGS)' >> $@
+	@echo '	$$(CXX) -c -o $$@ $$(subst $$(OBJDIR),$$(SRCDIR),$$(@:.o=.cpp)) $$(CFLAGS)' >> $@
 
 -include $(DEPS)
-.PHONY: headless
-headless:
-	make $(BUILDDIR)/mbeast_headless HEADLESS=true
-
-.PHONY: clean
-clean:
-	rm -fr $(BUILDDIR)
-
-.PHONY: cleanrpi
-cleanrpi:
-	$(MAKE) -C $(RPI_RGB_LIB_DIR)/lib clean
