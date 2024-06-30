@@ -12,7 +12,7 @@ const int WINDOW_SCALAR = 5;
 Visor::Visor() {
   LOG("starting SDL window with resolution %dx%d", WIDTH, HEIGHT);
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     ABORT("SDL could not initialize!\n%s", SDL_GetError());
   }
 

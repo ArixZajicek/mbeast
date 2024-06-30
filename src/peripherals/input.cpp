@@ -1,8 +1,11 @@
 #ifdef HEADLESS
 
 #include <malloc.h>
+#include <SDL2/SDL.h>
 #include "main.hpp"
 #include "peripherals.hpp"
+
+SDL_GameController *gameController = nullptr;
 
 Input::Input(Serial *s) {
   serial = s;
@@ -11,15 +14,49 @@ Input::Input(Serial *s) {
   for (int k = 0; k < InputKey::__COUNT; k++) {
     typed[k] = false;
   }
+
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+    LOG("Could not initialize SDL: %s", SDL_GetError());
+  } else {
+    LOG("Initialized SDL Controller input");
+  }
+
+  int numJoysticks = SDL_NumJoysticks();
+  if (SDL_NumJoysticks() < 1) {
+    LOG("No joysticks found (%d). Not initializing.", numJoysticks);
+  } else {
+    LOG("Initializing main controller.");
+    gameController = SDL_GameControllerOpen(0);
+    if (gameController == nullptr) {
+      LOG("Could not initialize game controller 0: %s", SDL_GetError());
+    }
+  }
 }
 
 void Input::tick() {
-  if (serial == nullptr) return;
-
   InputKeys newKeysDown;
   for (int k = 0; k < InputKey::__COUNT; k++) {
     newKeysDown[k] = state.keysDown[k];
   }
+
+  //if (gameController != nullptr) {
+  SDL_Event e;
+  while (SDL_PollEvent(&e) != 0) {
+    switch (e.type) {
+    case SDL_CONTROLLERBUTTONDOWN:
+      LOG("Controller button %d pressed", e.cbutton.which);
+      break;
+    case SDL_JOYDEVICEADDED:
+      LOG("Controller added! %d", e.cdevice.which);
+      break;
+    case SDL_JOYDEVICEREMOVED:
+      LOG("Controller removed! %d", e.cdevice.which);
+      break;
+    }
+  }
+  //}
+
+  if (serial == nullptr) return;
 
   // If we have an active message, see if it's ready
   if (msg != 0) {
