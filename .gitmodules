@@ -1,0 +1,3 @@
+[submodule "driver/rpi-rgb-led-matrix"]
+	path = driver/rpi-rgb-led-matrix
+	url = https://github.com/hzeller/rpi-rgb-led-matrix.git
