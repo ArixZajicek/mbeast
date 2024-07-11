@@ -1,5 +1,11 @@
 {
   "files.associations": {
     "*.h": "c"
+  },
+  "[c]": {
+    "editor.wordBasedSuggestions": "off",
+    "editor.suggest.insertMode": "replace",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.tabSize": 4
   }
 }
