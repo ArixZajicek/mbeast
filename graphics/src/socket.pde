@@ -20,7 +20,7 @@ public class Socket
   boolean connected;
   
   Socket(PApplet parent) {
-    buffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT * 3);
+    buffer = ByteBuffer.allocateDirect(65536);
     parent.registerMethod("draw", this);
     this.connected = false;
   }
