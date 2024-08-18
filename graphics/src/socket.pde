@@ -43,12 +43,12 @@ public class Socket
   
   void draw() {
     if(this.connected){
-      loadPixels();
+      g.loadPixels();
       buffer.clear();
       // Command
       buffer.put((byte) 0x20);
       for (int i = 0; i < WIDTH * HEIGHT; i++) {
-        int p = pixels[i * SCALE];
+        int p = g.pixels[i];
         buffer.put((byte)(p >> 16));  //R
         buffer.put((byte)(p >> 8));   //G
         buffer.put((byte) p);         //B
