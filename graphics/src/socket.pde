@@ -20,7 +20,7 @@ public class Socket
   boolean connected;
   
   Socket(PApplet parent) {
-    buffer = ByteBuffer.allocateDirect(65536);
+    buffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT * 3 + 1);
     parent.registerMethod("draw", this);
     this.connected = false;
   }
@@ -48,7 +48,7 @@ public class Socket
       // Command
       buffer.put((byte) 0x20);
       for (int i = 0; i < WIDTH * HEIGHT; i++) {
-        int p = pixels[i];
+        int p = pixels[i * SCALE];
         buffer.put((byte)(p >> 16));  //R
         buffer.put((byte)(p >> 8));   //G
         buffer.put((byte) p);         //B
