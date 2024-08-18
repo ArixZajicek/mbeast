@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <sys/un.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "mb.h"
@@ -47,6 +48,9 @@ int main(int argc, char **argv) {
         ABORT("Could not bind to socket.");
     }
 
+    // Accessible to non-sudo
+    fchmod(srv, S_IROTH | S_IWOTH);
+
     status = listen(srv, 1);
     if (status == -1) {
         ABORT("Could not listen to bound socket.");
@@ -74,6 +78,7 @@ int main(int argc, char **argv) {
             
             } else if (status == 0) {
                 LOG("Empty read from client. Disconnected.");
+                break;
 
             } else if (cmd == 0x00) {
                 LOG("NOP received.");
