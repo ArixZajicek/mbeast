@@ -12,14 +12,14 @@ import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 import java.nio.*;
 
-public class SocketSender
+public class Socket
 {
   byte[] packetData;
   SocketChannel channel;
   ByteBuffer buffer;
   boolean connected;
   
-  SocketSender(PApplet parent) {
+  Socket(PApplet parent) {
     buffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT * 3);
     parent.registerMethod("draw", this);
     this.connected = false;
@@ -29,7 +29,7 @@ public class SocketSender
     String tmpdir = System.getProperty("java.io.tmpdir");
     
     try {
-      UnixDomainSocketAddress socketAddress = UnixDomainSocketAddress.of(tmpdir + "/screen.socket"); // create socketAddress
+      UnixDomainSocketAddress socketAddress = UnixDomainSocketAddress.of(tmpdir + SOCKET_NAME); // create socketAddress
       channel = SocketChannel.open(StandardProtocolFamily.UNIX); // create the channel
       channel.connect(socketAddress); // connect channel to address;
     } catch(IOException ex) {

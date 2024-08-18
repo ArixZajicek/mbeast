@@ -3,15 +3,24 @@ final int
   HEIGHT = 64,
   SCALE = 4,
   FRAMERATE = 165;
+
 final float
   BREATHE_CYCLE = 3000,
   BREATHE_STRENGTH = 1;
+
+final boolean
+  HW_ENABLED = true;
+
+final String
+  SOCKET_NAME = "mbeast_driver.socket";
 
 PGraphics g;
 int mx = 0, my = 0;
 
 Eyes eyes;
 final float[][] noseShape = Util.getSimpleQuad(-3, -2, 1, -1, 3, 2, -2, 2);
+
+Socket socket;
 
 void setup() {
   size(640, 480, P2D);
@@ -24,6 +33,11 @@ void setup() {
   g.noSmooth();
   
   eyes = new Eyes(g, EyeState.Neutral);
+  
+  if (HW_ENABLED) {
+    socket = new Socket(this);
+    while (!socket.connect()) delay(1000);
+  }
 }
 
 void draw() {
@@ -45,6 +59,11 @@ void draw() {
   
   g.endDraw();
   image(g, 0, 0, WIDTH * SCALE, HEIGHT * SCALE);
+  
+  if(HW_ENABLED && !socket.connected) {
+    delay(500);
+    socket.connect();
+  }
 }
 
 void keyPressed() {
