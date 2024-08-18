@@ -88,10 +88,21 @@ int main(int argc, char **argv) {
             }
         
         } else if (cmd == 0x20) {
-            if (status < MBV_WIDTH * MBV_HEIGHT * 3 + 1) {
+            int cnt = status;
+            LOG("Received %d bytes on first read.", status);
+            while (cnt < MBV_WIDTH * MBV_HEIGHT * 3 + 1 && status != -1) {
+                status = read(client, buffer + cnt, BUFFER_SIZE - cnt);
+                if (status > 0) {
+                    cnt += status;
+                    LOG("Received %d more bytes.", status);
+                } else {
+                    LOG("Received status: %d", status);
+                }
+            }
+
+            if (cnt < MBV_WIDTH * MBV_HEIGHT * 3 + 1) {
                 LOG("Not enough bytes received for image.");
             } else {
-                LOG("Writing image to displays.");
                 MBV_write(buffer + 1);
             }
 
@@ -109,8 +120,6 @@ int main(int argc, char **argv) {
 
         close(client);
     }
-
-    sleep(5);
 
     MBV_close();
     return 0;

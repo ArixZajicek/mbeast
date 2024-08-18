@@ -17,11 +17,11 @@ void MBV_create() {
         2,      // --led-chain
         2,      // --led-parallel
 
-        8,      // N/A --led-pwm-bits (default is 11)
+        11,      // N/A --led-pwm-bits (default is 11)
         0,      // N/A --led-pwm-lsb-nanoseconds
         0,      // N/A --led-pwm-dither-bits
 
-        50,     // --led-brightness
+        20,     // --led-brightness
 
         0,      // N/A --led-scan-mode
 
@@ -29,7 +29,7 @@ void MBV_create() {
 
         0,      // N/A multiplexing
         0,      // N/A --led-hardware-pulse
-        1,      // N/A --led-show-refresh
+        0,      // N/A --led-show-refresh
         0,      // N/A --led-inverse
         "BGR",  // --led-rgb-sequence
         NULL,   // N/A --led-pixel-mapper
