@@ -48,13 +48,13 @@ int main(int argc, char **argv) {
         ABORT("Could not bind to socket.");
     }
 
-    // Accessible to non-sudo
-    fchmod(srv, S_IROTH | S_IWOTH);
-
     status = listen(srv, 1);
     if (status == -1) {
         ABORT("Could not listen to bound socket.");
     }
+
+    // Accessible to non-sudo
+    chmod(SOCKET_PATH, S_IROTH | S_IWOTH);
 
     // Begin listening for a client on socket
     uint8_t wait_for_next_client = 1;
@@ -81,35 +81,34 @@ int main(int argc, char **argv) {
                 break;
 
             } else if (cmd == 0x00) {
-                LOG("NOP received.");
+                //LOG("NOP received.");
             
             } else if (cmd == 0x10) {
-                LOG("Clear displays with black.");
                 MBV_fill(0, 0, 0);
 
             } else if (cmd == 0x11) {
                 if (status < 4) {
                     LOG("Not enough bytes received for single color.");
+                    break;
                 } else {
-                    LOG("Fill displays with single color.");
                     MBV_fill(buffer[1], buffer[2], buffer[3]);
                 }
             
             } else if (cmd == 0x20) {
                 int cnt = status;
-                LOG("Received %d bytes on first read.", status);
                 while (cnt < MBV_WIDTH * MBV_HEIGHT * 3 + 1 && status != -1) {
                     status = read(client, buffer + cnt, BUFFER_SIZE - cnt);
                     if (status > 0) {
                         cnt += status;
-                        LOG("Received %d more bytes.", status);
                     } else {
                         LOG("Received status: %d", status);
+                        break;
                     }
                 }
 
                 if (cnt < MBV_WIDTH * MBV_HEIGHT * 3 + 1) {
                     LOG("Not enough bytes received for image.");
+                    break;
                 } else {
                     MBV_write(buffer + 1);
                 }
@@ -119,16 +118,17 @@ int main(int argc, char **argv) {
                 write(client, &p, sizeof(p));
 
             } else if (cmd == 0xF0) {
-                LOG("Quitting.");
-                wait_for_next_client = 0;
+                LOG("Client ended connection.");
                 break;
 
             } else {
                 LOG("Unknown command '%d'.", cmd);
+                break;
             }
         }
 
         close(client);
+        LOG("Client connection has been closed.");
     }
 
     close(srv);

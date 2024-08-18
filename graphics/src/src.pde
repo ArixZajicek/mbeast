@@ -2,7 +2,7 @@ final int
   WIDTH = 256,
   HEIGHT = 64,
   SCALE = 4,
-  FRAMERATE = 60;
+  FRAMERATE = 120;
 
 final float
   BREATHE_CYCLE = 3000,

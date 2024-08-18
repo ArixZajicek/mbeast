@@ -28,7 +28,7 @@ CINCLUDES= \
 
 CFLAGS= \
 	$(CINCLUDES) \
-	-g -fno-exceptions -std=c17 -lstdc++
+	-O3 -fno-exceptions -std=c17 -lstdc++
 
 # Sources and intermediate files
 SRCS=$(wildcard $(SRCDIR)/*.c)
