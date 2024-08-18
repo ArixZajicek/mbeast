@@ -1,3 +1,4 @@
 #!/bin/bash
 
-processing-java --sketch=src --output=build --force --run
+#matchbox-window-manager &
+/home/arix/bin/processing-java --sketch=src --output=build --force --run
