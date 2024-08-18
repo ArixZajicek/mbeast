@@ -12,7 +12,7 @@ final boolean
   HW_ENABLED = true;
 
 final String
-  SOCKET_NAME = "mbeast_driver.socket";
+  SOCKET_PATH = "/tmp/mbeast_driver.socket";
 
 PGraphics g;
 int mx = 0, my = 0;

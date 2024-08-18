@@ -1,3 +1,19 @@
 # mbeast
 
 Mantled beast graphics driver.
+
+
+
+# Setup
+
+There's a socket at /tmp/mbeast_driver.socket
+
+On a headless Pi, do the following:
+
+```
+sudo apt-get install xvfb
+Xvfb :1 -screen 0 800x600x24+32 &
+export DISPLAY=:1
+```
+
+Then run the program.

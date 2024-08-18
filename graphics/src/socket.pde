@@ -26,10 +26,9 @@ public class Socket
   }
   
   boolean connect() {
-    String tmpdir = System.getProperty("java.io.tmpdir");
     
     try {
-      UnixDomainSocketAddress socketAddress = UnixDomainSocketAddress.of(tmpdir + SOCKET_NAME); // create socketAddress
+      UnixDomainSocketAddress socketAddress = UnixDomainSocketAddress.of(SOCKET_PATH); // create socketAddress
       channel = SocketChannel.open(StandardProtocolFamily.UNIX); // create the channel
       channel.connect(socketAddress); // connect channel to address;
     } catch(IOException ex) {
