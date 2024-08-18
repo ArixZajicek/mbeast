@@ -2,7 +2,7 @@ final int
   WIDTH = 256,
   HEIGHT = 64,
   SCALE = 4,
-  FRAMERATE = 165;
+  FRAMERATE = 60;
 
 final float
   BREATHE_CYCLE = 3000,
@@ -16,6 +16,7 @@ final String
 
 PGraphics g;
 int mx = 0, my = 0;
+int lastMillis;
 
 Eyes eyes;
 final float[][] noseShape = Util.getSimpleQuad(-3, -2, 1, -1, 3, 2, -2, 2);
@@ -38,6 +39,8 @@ void setup() {
     socket = new Socket(this);
     while (!socket.connect()) delay(1000);
   }
+  
+  lastMillis = millis();
 }
 
 void draw() {
@@ -48,11 +51,11 @@ void draw() {
 
   g.beginDraw();
   g.clear();
-  g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(millis()  / BREATHE_CYCLE * 2 * PI));
+  g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(millis() / BREATHE_CYCLE * 2 * PI));
   g.noStroke();
   
   g.fill(100, 255, 200);
-  eyes.tick(1.0 / FRAMERATE);
+  eyes.tick((millis() - lastMillis) / 1000.0);
   eyes.draw();
   Util.drawPointSet(g, noseShape, 2, 1.25, -25, -20);
   Util.drawPointSet(g, noseShape, -2, 1.25, 25, -20);
@@ -64,6 +67,8 @@ void draw() {
     delay(500);
     socket.connect();
   }
+  
+  lastMillis = millis();
 }
 
 void keyPressed() {
