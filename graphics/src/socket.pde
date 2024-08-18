@@ -45,6 +45,8 @@ public class Socket
     if(this.connected){
       loadPixels();
       buffer.clear();
+      // Command
+      buffer.put((byte) 0x20);
       for (int i = 0; i < WIDTH * HEIGHT; i++) {
         int p = pixels[i];
         buffer.put((byte)(p >> 16));  //R
