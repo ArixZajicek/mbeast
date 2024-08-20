@@ -1,4 +1,5 @@
 #!/bin/bash
 
-#matchbox-window-manager &
-/home/arix/bin/processing-java --sketch=src --output=build --force --run
+export DISPLAY=:1
+/home/arix/mbeast/graphics/build/src
+

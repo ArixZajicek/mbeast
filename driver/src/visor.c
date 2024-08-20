@@ -21,7 +21,7 @@ void MBV_create() {
         0,      // N/A --led-pwm-lsb-nanoseconds
         0,      // N/A --led-pwm-dither-bits
 
-        20,     // --led-brightness
+        75,     // --led-brightness
 
         0,      // N/A --led-scan-mode
 

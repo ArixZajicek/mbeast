@@ -1,0 +1,11 @@
+[Unit]
+Description=MBeast Display Driver
+
+[Service]
+Type=forking
+ExecStart=/home/arix/mbeast/driver/run.sh
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
+
