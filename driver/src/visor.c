@@ -17,11 +17,11 @@ void MBV_create() {
         2,      // --led-chain
         2,      // --led-parallel
 
-        11,      // N/A --led-pwm-bits (default is 11)
+        3,      // N/A --led-pwm-bits (default is 11)
         0,      // N/A --led-pwm-lsb-nanoseconds
         0,      // N/A --led-pwm-dither-bits
 
-        75,     // --led-brightness
+        80,     // --led-brightness
 
         0,      // N/A --led-scan-mode
 
@@ -34,11 +34,11 @@ void MBV_create() {
         "BGR",  // --led-rgb-sequence
         NULL,   // N/A --led-pixel-mapper
         NULL,   // N/A --led-panel-type
-        0       // N/A --led-limit-refresh
+        90       // N/A --led-limit-refresh
     };
 
     struct RGBLedRuntimeOptions matrix_runtime_opts = {
-        4,      // --led-slowdown-gpio (used to be 4)
+        5,      // --led-slowdown-gpio (used to be 4)
         0,      // N/A --led-daemon
         (bool)0,      // N/A do_gpio_init
         NULL,

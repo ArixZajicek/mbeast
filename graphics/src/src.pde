@@ -54,7 +54,7 @@ void draw() {
   g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(millis() / BREATHE_CYCLE * 2 * PI));
   g.noStroke();
   
-  g.fill(100, 255, 200);
+  g.fill(180, 255, 180);
   eyes.tick((millis() - lastMillis) / 1000.0);
   eyes.draw();
   Util.drawPointSet(g, noseShape, 2, 1.25, -25, -20);
