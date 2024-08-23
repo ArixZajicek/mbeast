@@ -4,7 +4,7 @@ static class Util {
     g.beginShape();
     boolean first = true;
     for (float v[] : points) {
-      if (first) {
+      if (first || v.length == 2) {
         g.vertex(v[0], v[1]);
         first = false;
       } else {
@@ -18,7 +18,7 @@ static class Util {
     g.beginShape();
     boolean first = true;
     for (float v[] : points) {
-      if (first) {
+      if (first || v.length == 2) {
         g.vertex(v[0] * scaleX + translateX, v[1] * scaleY + translateY);
         first = false;
       } else {

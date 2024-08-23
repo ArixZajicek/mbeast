@@ -2,24 +2,40 @@ final int
   WIDTH = 256,
   HEIGHT = 64,
   SCALE = 4,
-  FRAMERATE = 120;
+  FRAMERATE = 60;
 
 final float
   BREATHE_CYCLE = 3000,
-  BREATHE_STRENGTH = 1;
+  BREATHE_STRENGTH = 1,
+  EMOTION_MIN_DELAY = 10000,
+  EMOTION_MAX_DELAY = 30000,
+  GLITCH_DURATION = 240,
+  GLITCH_MIN_DELAY = 7500,
+  GLITCH_MAX_DELAY = 40000,
+  HUE_CYCLE = 10000;
 
 final boolean
-  HW_ENABLED = true;
+  HW_ENABLED = false;
 
 final String
   SOCKET_PATH = "/tmp/mbeast_driver.socket";
 
 PGraphics g;
 int mx = 0, my = 0;
-int lastMillis;
+int lastMillis, now;
+
+int nextGlitch = 0;
+int nextEmotionTime = 0;
+EyeState emotion = EyeState.Happy;
 
 Eyes eyes;
 final float[][] noseShape = Util.getSimpleQuad(-3, -2, 1, -1, 3, 2, -2, 2);
+final float[][] mouthHalfShape = {
+  {-90, 31},
+  {-70, 40, -50, 30, -30, 28},
+  {-16, 20},
+  { 0, 25}
+};
 
 Socket socket;
 
@@ -40,27 +56,63 @@ void setup() {
     while (!socket.connect()) delay(1000);
   }
   
+  setupShaders();
+  
+  now = millis();
   lastMillis = millis();
 }
 
 void draw() {
-  mx = mouseX / SCALE - WIDTH / 2;
-  my = mouseY / SCALE;
+  lastMillis = now;
+  now = millis();
+  float glitch = 0;
+  if (nextGlitch < now) {
+    if (nextGlitch > now - GLITCH_DURATION) {
+      glitch = 1 - (now - nextGlitch) / GLITCH_DURATION;
+    } else {
+      nextGlitch = now + round(random(GLITCH_MIN_DELAY, GLITCH_MAX_DELAY));
+    }
+  }
+  
+  if (nextEmotionTime < now) {
+    if (emotion == EyeState.Happy) {
+      emotion = EyeState.Neutral;
+    } else {
+      emotion = EyeState.Happy;
+    }
+    eyes.setState(emotion);
+    nextEmotionTime = now + round(random(EMOTION_MIN_DELAY, EMOTION_MAX_DELAY));
+  }
   
   background(0);
 
   g.beginDraw();
   g.clear();
-  g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(millis() / BREATHE_CYCLE * 2 * PI));
-  g.noStroke();
+  g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(now / BREATHE_CYCLE * 2 * PI) - 4);
   
+  g.noStroke();
   g.fill(180, 255, 180);
-  eyes.tick((millis() - lastMillis) / 1000.0);
+  
+  eyes.tick((now - lastMillis) / 1000.0);
   eyes.draw();
   Util.drawPointSet(g, noseShape, 2, 1.25, -25, -20);
   Util.drawPointSet(g, noseShape, -2, 1.25, 25, -20);
   
+  g.noFill();
+  g.stroke(180, 255, 180);
+  g.strokeWeight(3);
+  
+  Util.drawPointSet(g, mouthHalfShape, 1, 1, 0, 0);
+  Util.drawPointSet(g, mouthHalfShape, -1, 1, 0, 0);
+  
   g.endDraw();
+  
+  setShaderParams((now % HUE_CYCLE) / HUE_CYCLE, glitch);
+  if (glitch == 0) {
+    shader(shaderHue);
+  } else {
+    shader(shaderChannels);
+  }
   image(g, 0, 0, WIDTH * SCALE, HEIGHT * SCALE);
   
   if(HW_ENABLED && !socket.connected) {
@@ -68,7 +120,6 @@ void draw() {
     socket.connect();
   }
   
-  lastMillis = millis();
 }
 
 void keyPressed() {
