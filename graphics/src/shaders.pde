@@ -1,8 +1,8 @@
 PShader shaderHue, shaderChannels;
 
 void setupShaders() {
-  shaderHue = loadShader("shaders/hue.glsl");
-  shaderChannels = loadShader("shaders/channels.glsl");
+  shaderHue = loadShader("hue.glsl");
+  shaderChannels = loadShader("channels.glsl");
 }
 
 void setShaderParams(float hue, float glitch) {
