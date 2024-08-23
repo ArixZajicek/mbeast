@@ -15,7 +15,7 @@ final float
   HUE_CYCLE = 10000;
 
 final boolean
-  HW_ENABLED = false;
+  HW_ENABLED = true;
 
 final String
   SOCKET_PATH = "/tmp/mbeast_driver.socket";
