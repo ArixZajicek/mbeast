@@ -18,3 +18,5 @@ class Standard(Enum):
 standard_expr: Standard = Standard.Neutral
 
 running = True
+
+use_socket = True

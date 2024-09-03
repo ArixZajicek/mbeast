@@ -4,6 +4,8 @@ import random
 import state
 import util
 import math
+import colorsys
+from output import Matrix
 from collections.abc import MutableSequence
 
 class StandardExpressions:
@@ -15,13 +17,53 @@ class StandardExpressions:
             [-70, 40, -50, 30, -30, 28],
             [-16, 20],
             [ 0, 25]])
+        self.last_state = None
+
+        self.pat = cairo.LinearGradient(-Matrix.WIDTH / 2 * 10, -32.0, Matrix.WIDTH / 2 * 10, 32.0)
+        for i in range(0, 21):
+            (r, g, b) = colorsys.hsv_to_rgb((2 * i / 20) % 2, 1, 1)
+            self.pat.add_color_stop_rgb(i / 20, r, g, b)
         
+        self.pat_loc = 0
+        self.pat_target = 0
+
+    def _tick_pattern(self, delta):
+        if self.last_state != state.standard_expr:
+            if state.standard_expr == state.Standard.Neutral:
+                self.pat_target += Matrix.WIDTH / 2 * (1 + random.random() * 9)
+            elif state.standard_expr == state.Standard.Happy:
+                self.pat_target = Matrix.WIDTH / 2 * 10 * .4
+            else:
+                self.pat_target = 0
+            self.last_state = state.standard_expr
+        
+        if state.standard_expr == state.Standard.Neutral:
+            self.pat_target += delta * Matrix.WIDTH / 2 
+        
+        diff = self.pat_target - self.pat_loc
+        if abs(diff) > 0.5:
+            self.pat_loc += diff * min(delta * 10, 1)
+        else:
+            self.pat_loc = self.pat_target
+        
+        while self.pat_loc > Matrix.WIDTH / 2 * 9:
+            self.pat_loc -= Matrix.WIDTH / 2 * 10
+            self.pat_target -= Matrix.WIDTH / 2 * 10
+
+        while self.pat_loc < -Matrix.WIDTH / 2 * 9:
+            self.pat_loc += Matrix.WIDTH / 2 * 10
+            self.pat_target += Matrix.WIDTH / 2 * 10
+        
+        self.pat.set_matrix(cairo.Matrix(x0=self.pat_loc))
 
 
     def draw(self, g: cairo.Context, delta: float = 1/60):
         g.save()
 
         g.translate(0, math.sin(time.time() * (math.pi / 2)))
+        
+        self._tick_pattern(delta)
+        g.set_source(self.pat)
 
         self._eyes.draw(g, delta)
         self._mouth_shape.draw(g, (0, 0, 1, 1))
@@ -105,7 +147,7 @@ class Eyes:
             self.blink_level = -1
         
         for i in range(4):
-            self.current_eyes[i].approach(self.target_eyes[i], delta)
+            self.current_eyes[i].approach(self.target_eyes[i], 20 * delta)
             for j in range(4):
                 diff = self.target_tform[i][j] - self.current_tform[i][j]
                 if abs(diff) > 0.1 or (j > 1 and abs(diff) > 0.001):

@@ -22,12 +22,12 @@ class TShape:
                     p[5] * transform[3] + transform[1],
                 ])
     
-    def approach(self, target: 'TShape', factor = 0.05, threshold = 0.5):
+    def approach(self, target: 'TShape', factor = 0.1, threshold = 0.5):
         for i in range(min(len(self.points), len(target.points))):
             for j in range(min(len(self.points[i]), len(target.points[i]))):
                 diff = target.points[i][j] - self.points[i][j]
                 if (abs(diff) > threshold):
-                    self.points[i][j] += diff * Math.min(factor, 1)
+                    self.points[i][j] += diff * min(factor, 1)
                 else:
                     self.points[i][j] = target.points[i][j]
     

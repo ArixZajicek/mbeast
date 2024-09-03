@@ -27,3 +27,13 @@ class Win:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 state.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    state.standard_expr = state.Standard.Angry
+                elif event.key == pygame.K_DOWN:
+                    state.standard_expr = state.Standard.Neutral
+                elif event.key == pygame.K_UP:
+                    state.standard_expr = state.Standard.Happy
+                
+                elif event.key == pygame.K_q:
+                    state.running = False
