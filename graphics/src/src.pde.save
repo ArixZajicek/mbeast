@@ -10,8 +10,8 @@ final float
   EMOTION_MIN_DELAY = 10000,
   EMOTION_MAX_DELAY = 30000,
   GLITCH_DURATION = 240,
-  GLITCH_MIN_DELAY = 4500,
-  GLITCH_MAX_DELAY = 25000,
+  GLITCH_MIN_DELAY = 7500,
+  GLITCH_MAX_DELAY = 40000,
   HUE_CYCLE = 10000;
 
 final boolean
@@ -20,7 +20,7 @@ final boolean
 final String
   SOCKET_PATH = "/tmp/mbeast_driver.socket";
 
-PGraphics g, gShaded;
+PGraphics g;
 int mx = 0, my = 0;
 int lastMillis, now;
 
@@ -48,19 +48,15 @@ void setup() {
   g = createGraphics(WIDTH, HEIGHT, P2D);
   ((PGraphicsOpenGL) g).textureSampling(2);
   g.noSmooth();
-
-  gShaded = createGraphics(WIDTH, HEIGHT, P2D);
-  ((PGraphicsOpenGL) gShaded).textureSampling(2);
-  gShaded.noSmooth();
   
-  eyes = new Eyes(g, EyeState.Happy);
+  eyes = new Eyes(g, EyeState.Neutral);
   
   if (HW_ENABLED) {
     socket = new Socket(this);
     while (!socket.connect()) delay(1000);
   }
   
-  setupShaders();
+//  setupShaders();
   
   now = millis();
   lastMillis = millis();
@@ -69,8 +65,7 @@ void setup() {
 void draw() {
   lastMillis = now;
   now = millis();
-  
-  float glitch = 0;
+/*  float glitch = 0;
   if (nextGlitch < now) {
     if (nextGlitch > now - GLITCH_DURATION) {
       glitch = 1 - (now - nextGlitch) / GLITCH_DURATION;
@@ -79,7 +74,6 @@ void draw() {
     }
   }
   
-  /*
   if (nextEmotionTime < now) {
     if (emotion == EyeState.Happy) {
       emotion = EyeState.Neutral;
@@ -88,14 +82,13 @@ void draw() {
     }
     eyes.setState(emotion);
     nextEmotionTime = now + round(random(EMOTION_MIN_DELAY, EMOTION_MAX_DELAY));
-  }
-  */
+  }*/
   
   background(0);
 
   g.beginDraw();
   g.clear();
-  g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(now / BREATHE_CYCLE * 2 * PI));
+  g.translate(WIDTH / 2, HEIGHT / 2 + BREATHE_STRENGTH * sin(now / BREATHE_CYCLE * 2 * PI) - 8);
   
   g.noStroke();
   g.fill(180, 255, 180);
@@ -109,28 +102,34 @@ void draw() {
   g.stroke(180, 255, 180);
   g.strokeWeight(3);
   
-  Util.drawPointSet(g, mouthHalfShape, 1, 1, 0, -8);
-  Util.drawPointSet(g, mouthHalfShape, -1, 1, 0, -8);
+  Util.drawPointSet(g, mouthHalfShape, 1, 1, 0, 0);
+  Util.drawPointSet(g, mouthHalfShape, -1, 1, 0, 0);
   
-  g.endDraw();
+  notAProtogen();
 
+  g.endDraw();
+  /*
   setShaderParams((now % HUE_CYCLE) / HUE_CYCLE, glitch);
   if (glitch == 0) {
-    gShaded.shader(shaderHue);
+    shader(shaderHue);
   } else {
-    gShaded.shader(shaderChannels);
-  }
-  gShaded.beginDraw();
-  gShaded.clear();
-  gShaded.image(g, 0, 0, WIDTH, HEIGHT);
-  gShaded.endDraw();
-  image(gShaded, 0, 0, WIDTH * SCALE, HEIGHT * SCALE);
+    shader(shaderChannels);
+  }*/
+  image(g, 0, 0, WIDTH * SCALE, HEIGHT * SCALE);
   
   if(HW_ENABLED && !socket.connected) {
     delay(500);
     socket.connect();
   }
   
+}
+
+void notAProtogen() {
+  g.textSize(12);
+  g.noStroke();
+  g.fill(255, 150, 100, 180);
+  float napX = 128 - (millis() % 10000)/2000.0;
+  g.text("NOT A PROTOGEN", napX, 24);
 }
 
 void keyPressed() {
