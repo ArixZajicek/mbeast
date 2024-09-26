@@ -36,7 +36,9 @@ def main():
     ctx.set_line_width(3)
 
     output = None
-    if not state.use_socket:
+    if state.use_socket:
+        output = Matrix()
+    else:
         output = Win()
 
     expr = StandardExpressions()
