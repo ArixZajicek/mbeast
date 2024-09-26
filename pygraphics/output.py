@@ -1,12 +1,44 @@
 import pygame
+import socket
+import time
 
 import state
 
 class Matrix:
     WIDTH, HEIGHT = 256, 64
 
+    def connect(self):
+        while not self.connected:
+            try:
+                self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self.sock.connect(state.socket_path)
+                self.connected = True
+            except e:
+                # Failed to connect
+                print(f'Could not connect to {state.socket_path}. Trying again in 500ms...')
+                time.sleep(0.5)
+
     def __init__(self):
-        self
+        self.next_cmd = bytearray([32]) + bytearray(self.WIDTH * self.HEIGHT * 3)
+        self.connected = False
+        self.connect()
+
+    def draw(self, data):
+        if not self.connected:
+            self.connect()
+
+        i_dest = 1
+        for i_src in range(self.WIDTH * self.HEIGHT * 4):
+            if i_src % 4 != 3:
+                self.next_cmd[i_dest] = data[i_src]
+                i_dest = i_dest + 1
+                
+        self.sock.sendall(self.next_cmd)
+    
+    def cleanup(self):
+        sock.close()
+        
+
 
 class Win:
     bg_color = (0, 0, 0)
@@ -37,3 +69,7 @@ class Win:
                 
                 elif event.key == pygame.K_q:
                     state.running = False
+
+    def cleanup(self):
+        self
+        # nothing to do

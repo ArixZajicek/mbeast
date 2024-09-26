@@ -20,3 +20,5 @@ standard_expr: Standard = Standard.Neutral
 running = True
 
 use_socket = True
+
+socket_path = '/tmp/mbeast_driver.socket'
