@@ -15,7 +15,7 @@ class Standard(Enum):
     Sleepy = auto()
     Dizzy = auto()
 
-standard_expr: Standard = Standard.Neutral
+standard_expr: Standard = Standard.Happy
 
 running = True
 

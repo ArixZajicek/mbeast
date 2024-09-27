@@ -1,0 +1,13 @@
+[Unit]
+Description=MBeast Control App
+After=mbdriver.service
+
+[Service]
+Type=simple
+ExecStart=/home/arix/mbeast/pygraphics/run.sh
+Restart=on-failure
+RestartSec=10
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

@@ -17,11 +17,11 @@ void MBV_create() {
         2,      // --led-chain
         2,      // --led-parallel
 
-        3,      // N/A --led-pwm-bits (default is 11)
+        8,      // N/A --led-pwm-bits (default is 11)
         0,      // N/A --led-pwm-lsb-nanoseconds
         0,      // N/A --led-pwm-dither-bits
 
-        80,     // --led-brightness
+        100,     // --led-brightness
 
         0,      // N/A --led-scan-mode
 

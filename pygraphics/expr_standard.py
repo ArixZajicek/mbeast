@@ -14,9 +14,9 @@ class StandardExpressions:
         self._nose_shape = util.get_simple_quad((-3, -2), (1, -1), (3, 2), (-2, 2))
         self._mouth_shape = util.TShape([
             [-90, 31],
-            [-70, 40, -50, 30, -30, 28],
-            [-16, 20],
-            [ 0, 25]])
+            [-70, 35, -50, 26, -30, 24],
+            [-16, 21],
+            [ 0, 22]])
         self.last_state = None
 
         self.pat = cairo.LinearGradient(-Matrix.WIDTH / 2 * 10, -32.0, Matrix.WIDTH / 2 * 10, 32.0)
@@ -66,9 +66,9 @@ class StandardExpressions:
         g.set_source(self.pat)
 
         self._eyes.draw(g, delta)
-        self._mouth_shape.draw(g, (0, 0, 1, 1))
+        self._mouth_shape.draw(g, (0, -10, 1, 1))
         g.stroke()
-        self._mouth_shape.draw(g, (0, 0, -1, 1))
+        self._mouth_shape.draw(g, (0, -10, -1, 1))
         g.stroke()
         self._nose_shape.draw(g, (-25, -20, 2, 1.25))
         g.fill()
